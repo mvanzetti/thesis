@@ -252,7 +252,7 @@ The following is an example of the arguments list output
 # Paired-End mode is off
 ```
 
-Above the resulting output files we are interesting on:
+Above the resulting output files we are interested on:
 
 - *NAME_peaks.broadPeak* is in BED6+3 format which is similar to narrowPeak file, except for missing the 10th column for annotating peak summits. Columns are:
 	- *chrom*: name of the chromosome (or contig, scaffold, etc.).
