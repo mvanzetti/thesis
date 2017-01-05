@@ -2,3 +2,5 @@
 /download/
 /data/__pycache__/
 .idea/
+/notebooks/.ipynb_checkpoints/
+/staging/

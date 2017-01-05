@@ -10,8 +10,9 @@ from pandas.io.json import json_normalize
 # Example:
 # search_url = self.main_url + "/search/?type=Annotation&annotation_type=enhancer-like+regions&frame=object&limit=all"
 # directory = "/Users/manuel/development/thesis/download/ENCODE"
+# annotation_filename = "enhancer-like-annotations.csv"
 
-class ENCODE:
+class EncodeDownloader:
     headers = {'accept': 'application/json'}
     main_url = "https://www.encodeproject.org"
 
@@ -22,10 +23,8 @@ class ENCODE:
             "&annotation_type=" + annotation_type_param + \
             "&frame=object&limit=all"
 
-    def download(self, directory):
-
+    def download(self, directory, annotation_filename):
         response = requests.get(self.search_url, headers=self.headers)
-
         response_json_dict = response.json()
 
         graph = response_json_dict["@graph"]
@@ -35,26 +34,31 @@ class ENCODE:
             print("Directory does not exist, creating...")
             os.makedirs(directory)
 
-        file_list_name = directory + "/enhancer-like-annotations.csv"
+        file_list_name = directory + "/" + annotation_filename
 
         df = pd.DataFrame()
 
         if not os.path.exists(file_list_name):
             for i, element in enumerate(graph):
                 temp_df = json_normalize(element)
+                assembly_list = temp_df.get_value(0, "assembly")
+                if len(assembly_list) > 0:
+                    temp_df['assembly'] = assembly_list[0]
+                else:
+                    temp_df['assembly'] = ''
+
                 temp_df['index'] = i
                 temp_df['imported'] = False
                 df = df.append(temp_df)
                 i += 1
 
-            df.set_index('index')
+            df = df.set_index('index')
             df.to_csv(file_list_name, sep='\t')
 
-        else:
-            df = pd.read_csv(file_list_name, sep='\t')
+        df = pd.read_csv(file_list_name, sep='\t', index_col='index')
 
-        count_downloaded = df.query('imported == True')['index'].count()
-        print("Annotations entries to download:", count_downloaded, "of a total of", df['index'].count())
+        to_download = len(df.query('imported == False'))
+        print("Annotations entries to download:", to_download, "of a total of", len(df))
 
         for element in graph:
             print("Processing...", element["accession"], ":", element["description"])
@@ -88,7 +92,7 @@ class ENCODE:
 
                 filename = file_response_dict["href"].split("/")[-1]
 
-                if "bed.gz" not in filename:
+                if ".bed.gz" not in filename:
                     continue
 
                 download_file_name = download_file_directory + filename
