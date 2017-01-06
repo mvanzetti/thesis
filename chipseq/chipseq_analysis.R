@@ -7,7 +7,7 @@ biocLite("chipseq")
 biocLite("VennDiagram")
 
 setwd("/Users/manuel/Documents/Tesi/Chip-seq_tutorial/dev/")
-dataDir <- "../data/"
+dataDir <- "../data_process/"
 
 #Quality Assessment
 fls = list.files(dataDir, ".fastq$", full = TRUE)
@@ -103,7 +103,7 @@ input = prepareChiIPseq(input)
 rep1 = prepareChiIPseq(rep1)
 rep2 = prepareChiIPseq(rep2)
 
-#Binning chipseq and control data
+#Binning chipseq and control data_process
 #Tile the genome into non overlapping bins of size 200 bp
 #using chromosome size informations of assembly mm9 
 
@@ -148,7 +148,7 @@ plotTracks(c( bm, AT),
            transcriptAnnotation="symbol", window="auto",
            cex.title=1, fontsize=10 )
 
-#add data track
+#add data_process track
 input.track = DataTrack(input.200bins,
                         strand="*", genome="mm9", col.histogram='gray',
                         fill.histogram='black', name="Input", col.axis="black",

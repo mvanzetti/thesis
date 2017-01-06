@@ -1,12 +1,12 @@
-import sys
-import pandas as pd
 import os
-import ast
+import sys
 import time
+
+import pandas as pd
 from pybedtools import BedTool
 
 
-class EncodeBedMerger:
+class EncodeBedProcessor:
     def __init__(self, download_path, staging_path):
         self.download_path = download_path
         self.staging_path = staging_path
@@ -118,7 +118,9 @@ class EncodeBedMerger:
         bed_df = bed_df.drop('thickEnd', axis=1)
         bed_df = bed_df.drop('itemRgb', axis=1)
 
-        return bed_df
+        output_filename = self.staging_path + "/merged/" + experiment + ".csv"
+
+        return output_filename, bed_df
 
     def merge(self, prepared_filename, force=False):
         file_list_name = self.staging_path + "/" + prepared_filename
@@ -136,9 +138,7 @@ class EncodeBedMerger:
                           "has no bed file: skip")
                     continue
 
-                bed_df = self.process_bed_file(index, annotation_df)
-
-                output_filename = self.staging_path + "/merged/" + bed_df['experiment'] + ".csv"
+                output_filename, bed_df = self.process_bed_file(index, annotation_df)
 
                 bed_df.to_csv(output_filename, index=None, sep='\t')
                 annotation_df.set_value(index, 'merged', True)
@@ -211,7 +211,7 @@ encode_staging_path = "/Users/manuel/development/thesis/staging/ENCODE"
 input_csv = "enhancer-like-annotations.csv"
 output_csv = "enhancer-like-bed_refs.csv"
 
-merger = EncodeBedMerger(encode_path, encode_staging_path)
+merger = EncodeBedProcessor(encode_path, encode_staging_path)
 # merger.prepare(input_csv, output_csv)
 # merger.merge(output_csv, force=False)
 merger.filter(output_csv, assembly='hg19', method='DNase_H3K27ac')
