@@ -4,12 +4,12 @@ import time
 
 import pandas as pd
 from pybedtools import BedTool
+from data_process.processor import Processor
 
 
-class EncodeBedProcessor:
+class EncodeBedProcessor(Processor):
     def __init__(self, download_path, staging_path):
-        self.download_path = download_path
-        self.staging_path = staging_path
+        super(EncodeBedProcessor, self).__init__(download_path, staging_path)
 
     @staticmethod
     def label_method(row):
