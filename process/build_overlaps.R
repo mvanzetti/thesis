@@ -61,10 +61,46 @@ Hits(from, to, 7, 15, id, sort.by.query=TRUE)
 ovlp
 
 
-# try to open a big filtered file with DNase+H3K27ac candidate enhancers --> OK!!!
-# test range obj from csv -> using adrenal glands DNase only experiment
+# try to open a big filtered file with DNase+H3K27ac candidate enhancers 
 filtered_dir <- "/Users/manuel/development/thesis/staging/ENCODE/filtered/"
 filtered_file <- "filtered_20170106.csv"
 big.df <- read.csv(paste0(filtered_dir, filtered_file), sep="\t")
 big.ranges <- makeGRangesFromDataFrame(big.df, keep.extra.columns = TRUE)
+
+# load FANTOM5 permissive enhancers and put in range obj
+permissive_dir <- "/Users/manuel/development/thesis/staging/FANTOM/permissive/"
+permissive_file <- "PERMISSIVE.csv"
+permissive.df <- read.csv(paste0(permissive_dir, permissive_file), sep="\t")
+permissive.ranges <-  makeGRangesFromDataFrame(permissive.df, keep.extra.columns = TRUE)
+
+# find ENCODE candidates overlapping FANTOM5 permissive enhancers
+encode.overlapping.fantom <- subsetByOverlaps(big.ranges, permissive.ranges)
+fantom.overlapping.encode <- subsetByOverlaps(permissive.ranges, big.ranges)
+
+cat(sprintf("regions of ENCODE overlapping regions from FANTOM are %d", length(encode.overlapping.fantom)))
+cat(sprintf("regions of FANTOM overlapping regions from ENCODE are %d", length(fantom.overlapping.encode)))
+
+# investigate sample types 
+unique(big.df[, c('description','biosample_term_name')])
+unique(big.df['biosample_type'])
+unique(big.df['biosample_term_name'])
+
+big.df.tissue <-  subset(big.df, biosample_type == "tissue")
+unique(big.df.tissue['biosample_term_name'])
+unique(big.df.tissue['organ_slims'])
+
+big.df.primarycell <-  subset(big.df, biosample_type == "primary cell")
+unique(big.df.primarycell['biosample_term_name'])
+unique(big.df.primarycell['organ_slims'])
+
+encode.pc.ranges <- makeGRangesFromDataFrame(big.df.primarycell, keep.extra.columns = TRUE)
+
+# ENCODE3 primary cells enhancers overlapping FANTOM5 permissive enhancers
+encode.pc.overlapping.fantom <- subsetByOverlaps(encode.pc.ranges, permissive.ranges)
+cat(sprintf("regions of ENCODE primary cells overlapping regions from FANTOM are %d", 
+            length(encode.pc.overlapping.fantom)))
+
+# filter by single ENCODE sample and find overlaps: primary cell type, T-cell sample
+big.df.pc.Tcell <-  subset(big.df.primarycell, biosample_term_name == "T-cell")
+big.df.pc.Tcell.ranges <- makeGRangesFromDataFrame(big.df.pc.Tcell, keep.extra.columns = TRUE)
 
