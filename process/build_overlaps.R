@@ -180,3 +180,6 @@ test.primaryCell.Tcell.df <-
 
 test.tissue.placenta.df <- 
   buildEncodeOverlappingFantomBySampleDataframe(big.df, permissive.df, 'tissue', 'placenta', 'any', 0L)
+
+# test intersection
+

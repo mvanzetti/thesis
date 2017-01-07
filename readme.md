@@ -8,6 +8,7 @@ Provide a picture of the full pipeline
 Describe the tool built to download and reclassify the 437 samples containing putative enhancers from ENCODE database.
 Because of a bug in the ENCODE download tool, an implementation of a data scraping tool using the ENCODE REST APIs was necessary.
 
+
 ### ENCODE Resource Processor
 Describe the tool built to process downloaded ENCODE files and the possibile obtainable outputs
 
@@ -238,5 +239,6 @@ permissive_file <- "PERMISSIVE.csv"
 permissive.df <- read.csv(paste0(permissive_dir, permissive_file), sep="\t")
 ```
 
+### Overlaps DB pipeline: ENCODE in dbSUPER
 
 
