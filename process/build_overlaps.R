@@ -101,6 +101,82 @@ cat(sprintf("regions of ENCODE primary cells overlapping regions from FANTOM are
             length(encode.pc.overlapping.fantom)))
 
 # filter by single ENCODE sample and find overlaps: primary cell type, T-cell sample
-big.df.pc.Tcell <-  subset(big.df.primarycell, biosample_term_name == "T-cell")
-big.df.pc.Tcell.ranges <- makeGRangesFromDataFrame(big.df.pc.Tcell, keep.extra.columns = TRUE)
+overlap_type <-  'any'
+overlap_maxgap <- 0L
 
+big.df.pc.Tcell <-  subset(big.df.primarycell, biosample_term_name == "T-cell")
+encode.pc.Tcell.ranges <- makeGRangesFromDataFrame(big.df.pc.Tcell, keep.extra.columns = TRUE)
+encode.pc.Tcell.overlapping.fantom <- 
+  subsetByOverlaps(encode.pc.Tcell.ranges, permissive.ranges, type = overlap_type, maxgap = overlap_maxgap)
+
+cat(sprintf("regions of ENCODE T-cell primary cells overlapping regions from FANTOM are %d", 
+            length(encode.pc.Tcell.overlapping.fantom)))
+
+# fantom.overlapping.encode.pc.Tcell <- subsetByOverlaps(permissive.ranges, encode.pc.Tcell.ranges)
+# cat(sprintf("regions of FANTOM overlapping regions from ENCODE T-cell primary cells are %d", 
+#             length(fantom.overlapping.encode.pc.Tcell)))
+
+# Build an R dataframe of single sample ENCODE enhancers overlapping FANTOM5 permissive enhancers
+# select a single sample; considering now the primary cell type, T-cell sample and find overlaps
+# consider the encode.pc.Tcell.overlapping.fantom and convert it to a data.frame
+overlap.df <- as.data.frame(encode.pc.Tcell.overlapping.fantom)
+overlap.df['encode'] = TRUE
+overlap.df['fantom'] = TRUE
+overlap.df['overlap_type'] = overlap_type
+overlap.df['overlap_maxgap'] = overlap_maxgap
+
+overlap.df.subsetcols <- 
+  subset(overlap.df, select = c('candidate_id', 'encode', 'fantom', 'overlap_type', 'overlap_maxgap'))
+
+merged.df <- merge(overlap.df.subsetcols, big.df.pc.Tcell, by='candidate_id', all = TRUE)
+
+merged.df['encode'][is.na(merged.df['encode'])] <- TRUE
+merged.df['fantom'][is.na(merged.df['fantom'])] <- FALSE
+
+
+# group the operations in a function
+buildEncodeOverlappingFantomBySampleDataframe <- 
+  function(encode.df, fantom.df, encode_sample_type, encode_sample_term_name, overlap_type, overlap_maxgap){
+    
+    # subset by sample type, term name
+    query.subset.df <- encode.df
+    query.subset.df <- subset(query.subset.df, biosample_type == encode_sample_type)
+    query.subset.df <- subset(query.subset.df, biosample_term_name == encode_sample_term_name)
+    
+    # build ranges
+    query.subset.ranges <- makeGRangesFromDataFrame(query.subset.df, keep.extra.columns = TRUE)
+    subject.ranges <- makeGRangesFromDataFrame(fantom.df, keep.extra.columns = TRUE)
+    
+    query.overlapping.subject <- 
+      subsetByOverlaps(query.subset.ranges, subject.ranges, type = overlap_type, maxgap = overlap_maxgap)
+      
+    overlap.df <- as.data.frame(query.overlapping.subject)
+    overlap.df['encode'] = TRUE
+    overlap.df['fantom'] = TRUE
+    overlap.df['overlap_type'] = overlap_type
+    overlap.df['overlap_maxgap'] = overlap_maxgap
+    
+    overlap.df.subsetcols <- 
+      subset(overlap.df, select = c('candidate_id', 'encode', 'fantom', 'overlap_type', 'overlap_maxgap'))
+    
+    merged.df <- merge(overlap.df.subsetcols, query.subset.df, by='candidate_id', all = TRUE)
+    
+    merged.df['encode'][is.na(merged.df['encode'])] <- TRUE
+    merged.df['fantom'][is.na(merged.df['fantom'])] <- FALSE
+    
+    cat(
+      sprintf(
+        "Found %d candidates from ENCODE %s %s overlapping candidates from FANTOM with overlap type '%s' and maxgap %d",
+        length(query.overlapping.subject), encode_sample_type, encode_sample_term_name, overlap_type, overlap_maxgap
+        )
+      )
+    
+    return(merged.df)
+  }
+
+# test the function
+test.primaryCell.Tcell.df <- 
+  buildEncodeOverlappingFantomBySampleDataframe(big.df, permissive.df, 'primary cell', 'T-cell', 'any', 0L)
+
+test.tissue.placenta.df <- 
+  buildEncodeOverlappingFantomBySampleDataframe(big.df, permissive.df, 'tissue', 'placenta', 'any', 0L)

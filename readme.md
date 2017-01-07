@@ -12,7 +12,7 @@ Because of a bug in the ENCODE download tool, an implementation of a data scrapi
 Describe the tool built to process downloaded ENCODE files and the possibile obtainable outputs
 
 ### DNase and H3K27ac ENCODE candidate enhancers
-The full 437 samples list was then filtered following [this approach](http://zlab-annotations.umassmed.edu/enhancers/methods), so the list was restricted to putative enhancers of 47 human cell types showing both DNase and H3K27ac signals.
+The full 437 samples list was then filtered following [this approach](http://zlab-annotations.umassmed.edu/enhancers/methods), so the list was restricted to putative enhancers of 47 human cell types showing both DNase and H3K27ac signals. The H3K27ac histone mark is associated with enhancer activity.
 
 ### FANTOM5 permissive enhancers
 A preliminary analysis was performed in order to understand the putative enhancers and formats available from FANTOM5 experiments.
@@ -152,6 +152,91 @@ cat(sprintf("regions of ENCODE T-cell primary cells overlapping regions from FAN
 Result: 
 
 - regions of ENCODE T-cell primary cells overlapping regions from FANTOM are 6482
+
+
+### Overlaps DB pipeline: ENCODE in FANTOM
+
+This pipeline ensures quickly to preserve informations provided by ENCODE DNase+H3K27ac samples without the need of sample specific enhancer list from FANTOM experiments.
+
+- Select a single sample ENCODE3 DNase+H3K27ac enhancer list
+- Find enhancers of this list overlapping FANTOM5 permissive list
+- Build an R dataframe consisting of the resulting ranges, adding the additional columns:
+	- *encode*: set to True
+	- *fantom*: set to True
+	- *overlap_type*: the type of the overlap (e.g.: any, within, equals, ...)
+	- *max_gap*: the eventually max gap applied (e.g.: if equals, max_gap could be 10, 20, ...)
+
+	In this way is possibile to understand clearly the criteria applied to build the database and choose to produce different databases changing the criteria or the sources.
+- Extract the non-overlapping enhancers in an R dataframe and add the additional columns with encode=True, fantom=False
+- Unify the the overlapping and non-overlapping in a new R dataframe
+
+This pipeline could be executed for all the 47 samples simply unifing the results for each sample iteration.
+
+The defined function is the following
+
+```
+buildEncodeOverlappingFantomBySampleDataframe <- 
+  function(encode.df, fantom.df, encode_sample_type, encode_sample_term_name, overlap_type, overlap_maxgap){
+    
+    # subset by sample type, term name
+    query.subset.df <- encode.df
+    query.subset.df <- subset(query.subset.df, biosample_type == encode_sample_type)
+    query.subset.df <- subset(query.subset.df, biosample_term_name == encode_sample_term_name)
+    
+    # build ranges
+    query.subset.ranges <- makeGRangesFromDataFrame(query.subset.df, keep.extra.columns = TRUE)
+    subject.ranges <- makeGRangesFromDataFrame(fantom.df, keep.extra.columns = TRUE)
+    
+    query.overlapping.subject <- 
+      subsetByOverlaps(query.subset.ranges, subject.ranges, type = overlap_type, maxgap = overlap_maxgap)
+      
+    overlap.df <- as.data.frame(query.overlapping.subject)
+    overlap.df['encode'] = TRUE
+    overlap.df['fantom'] = TRUE
+    overlap.df['overlap_type'] = overlap_type
+    overlap.df['overlap_maxgap'] = overlap_maxgap
+    
+    overlap.df.subsetcols <- 
+      subset(overlap.df, select = c('candidate_id', 'encode', 'fantom', 'overlap_type', 'overlap_maxgap'))
+    
+    merged.df <- merge(overlap.df.subsetcols, query.subset.df, by='candidate_id', all = TRUE)
+    
+    merged.df['encode'][is.na(merged.df['encode'])] <- TRUE
+    merged.df['fantom'][is.na(merged.df['fantom'])] <- FALSE
+    
+    cat(
+      sprintf(
+        "Found %d candidates from ENCODE %s %s overlapping candidates from FANTOM with overlap type '%s' and maxgap %d",
+        length(query.overlapping.subject), encode_sample_type, encode_sample_term_name, overlap_type, overlap_maxgap
+        )
+      )
+    
+    return(merged.df)
+  }
+
+```
+
+Two examples of usage (on primary cell/T-cell and tissue/placenta) are:
+
+```
+> test.primaryCell.Tcell.df <- 
++   buildEncodeOverlappingFantomBySampleDataframe(big.df, permissive.df, 'primary cell', 'T-cell', 'any', 0L)
+Found 6482 candidates from ENCODE primary cell T-cell overlapping candidates from FANTOM with overlap type 'any' and maxgap 0
+> test.tissue.placenta.df <- 
++   buildEncodeOverlappingFantomBySampleDataframe(big.df, permissive.df, 'tissue', 'placenta', 'any', 0L)
+Found 5883 candidates from ENCODE tissue placenta overlapping candidates from FANTOM with overlap type 'any' and maxgap 0
+```
+
+where the dataframes are
+```
+filtered_dir <- "/Users/manuel/development/thesis/staging/ENCODE/filtered/"
+filtered_file <- "filtered_20170106.csv"
+big.df <- read.csv(paste0(filtered_dir, filtered_file), sep="\t")
+
+permissive_dir <- "/Users/manuel/development/thesis/staging/FANTOM/permissive/"
+permissive_file <- "PERMISSIVE.csv"
+permissive.df <- read.csv(paste0(permissive_dir, permissive_file), sep="\t")
+```
 
 
 
