@@ -1,7 +1,6 @@
 import json
 import os
 import urllib.request
-
 import pandas as pd
 import requests
 from pandas.io.json import json_normalize
@@ -24,7 +23,10 @@ class EncodeDownloader:
             "&frame=object&limit=all"
 
     def download(self, directory, annotation_filename):
+        print("Sending request to", self.main_url, "...")
         response = requests.get(self.search_url, headers=self.headers)
+        print("Response status is", response.status_code)
+
         response_json_dict = response.json()
 
         graph = response_json_dict["@graph"]

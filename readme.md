@@ -15,6 +15,14 @@ Describe the tool built to process downloaded ENCODE files and the possibile obt
 ### DNase and H3K27ac ENCODE candidate enhancers
 The full 437 samples list was then filtered following [this approach](http://zlab-annotations.umassmed.edu/enhancers/methods), so the list was restricted to putative enhancers of 47 human cell types showing both DNase and H3K27ac signals. The H3K27ac histone mark is associated with enhancer activity.
 
+### dbSUPER Downloader tool
+Describe the tool built to download the full list of super-enhancers in two fashions:
+
+- A csv file with columns ['ID', 'Chrom', 'Start', 'End', 'Size', 'Associated Gene', 'Method', 'Rank', 'Cell/Tissue', 'Genome'] useful for enhancers classification
+- The full BED file, crucial for overlap analysis
+
+
+
 ### FANTOM5 permissive enhancers
 A preliminary analysis was performed in order to understand the putative enhancers and formats available from FANTOM5 experiments.
 
