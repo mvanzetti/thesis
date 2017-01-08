@@ -160,13 +160,15 @@ class EncodeBedProcessor(Processor):
     def filter(self, prepared_filename, assembly=None, method=None, force=False):
         file_list_name = self.staging_path + "/" + prepared_filename
         annotation_df = pd.read_csv(file_list_name, sep='\t', index_col='index')
-        filter_file_name = "filtered_" + time.strftime("%Y%m%d")
+        filter_file_name = "filtered_"
 
         if assembly:
             print("Filtering by assembly", assembly)
+            filter_file_name += assembly
             annotation_df = annotation_df.query('assembly==@assembly')
         if method:
             print("Filtering by method", method)
+            filter_file_name += method
             annotation_df = annotation_df.query('method==@method')
 
         print(len(annotation_df), "experiments found")
@@ -198,9 +200,13 @@ class EncodeBedProcessor(Processor):
                 raise
 
         output_filename = self.staging_path + "/filtered/" + filter_file_name + ".csv"
+        output_bed_filename = self.staging_path + "/filtered/" + filter_file_name + ".bed"
 
-        print("Exporting filterd file to:", output_filename)
+        print("Exporting filtered file to:", output_filename)
         full_bed_df.to_csv(output_filename, index=None, sep='\t')
+
+        print("Exporting filtered file in bed format (substituting names with candidate_ids)")
+        full_bed_df.to_csv(output_bed_filename, index=None, sep='\t', header=None)
 
         print("Completed")
 
