@@ -174,6 +174,7 @@ This pipeline ensures quickly to preserve informations provided by ENCODE DNase+
 	- *fantom*: set to True
 	- *overlap_type*: the type of the overlap (e.g.: any, within, equals, ...)
 	- *max_gap*: the eventually max gap applied (e.g.: if equals, max_gap could be 10, 20, ...)
+	- *overlap_min*: the minimum overlap (num of positions) that the algorithm must ensure
 
 	In this way is possibile to understand clearly the criteria applied to build the database and choose to produce different databases changing the criteria or the sources.
 - Extract the non-overlapping enhancers in an R dataframe and add the additional columns with encode=True, fantom=False
@@ -185,7 +186,7 @@ The defined function is the following
 
 ```
 buildEncodeOverlappingFantomBySampleDataframe <- 
-  function(encode.df, fantom.df, encode_sample_type, encode_sample_term_name, overlap_type, overlap_maxgap){
+  function(encode.df, fantom.df, encode_sample_type, encode_sample_term_name, overlap_type='any', overlap_maxgap=, overlap_min){
     
     # subset by sample type, term name
     query.subset.df <- encode.df
@@ -197,16 +198,17 @@ buildEncodeOverlappingFantomBySampleDataframe <-
     subject.ranges <- makeGRangesFromDataFrame(fantom.df, keep.extra.columns = TRUE)
     
     query.overlapping.subject <- 
-      subsetByOverlaps(query.subset.ranges, subject.ranges, type = overlap_type, maxgap = overlap_maxgap)
+      subsetByOverlaps(query.subset.ranges, subject.ranges, type = overlap_type, maxgap = overlap_maxgap, minoverlap = overlap_min)
       
     overlap.df <- as.data.frame(query.overlapping.subject)
     overlap.df['encode'] = TRUE
     overlap.df['fantom'] = TRUE
     overlap.df['overlap_type'] = overlap_type
     overlap.df['overlap_maxgap'] = overlap_maxgap
+    overlap.df['overlap_min'] = overlap_min
     
     overlap.df.subsetcols <- 
-      subset(overlap.df, select = c('candidate_id', 'encode', 'fantom', 'overlap_type', 'overlap_maxgap'))
+      subset(overlap.df, select = c('candidate_id', 'encode', 'fantom', 'overlap_type', 'overlap_maxgap', 'overlap_min'))
     
     merged.df <- merge(overlap.df.subsetcols, query.subset.df, by='candidate_id', all = TRUE)
     
@@ -215,17 +217,44 @@ buildEncodeOverlappingFantomBySampleDataframe <-
     
     cat(
       sprintf(
-        "Found %d candidates from ENCODE %s %s overlapping candidates from FANTOM with overlap type '%s' and maxgap %d",
-        length(query.overlapping.subject), encode_sample_type, encode_sample_term_name, overlap_type, overlap_maxgap
+        "Found %d candidates from ENCODE %s %s overlapping candidates from FANTOM with overlap type '%s', maxgap %d, min overlap %d positions",
+        length(query.overlapping.subject), encode_sample_type, encode_sample_term_name, overlap_type, overlap_maxgap, overlap_min
         )
       )
     
     return(merged.df)
   }
 
+
+```
+The min overlap criteria function is
+
+```
+computeMinOverlapByMeanLen <-  function(encode.df, fantom.df, factor) {
+  mean.encode = mean(encode.df$end - encode.df$start)
+  mean.fantom = mean(permissive.df$end - permissive.df$start)
+  return(round(min(mean.encode, mean.fantom) * factor))
+}
+
 ```
 
-Two examples of usage (on primary cell/T-cell and tissue/placenta) are:
+Two examples of usage (on primary cell/T-cell and tissue/placenta) with 70% of min overlap requested:
+
+```
+> minoverlap.Tcell <- computeMinOverlapByMeanLen(big.df, permissive.df, 0.7)
+> minoverlap.placenta <- computeMinOverlapByMeanLen(big.df, permissive.df, 0.7)
+> test.primaryCell.Tcell.df <- 
++   buildEncodeOverlappingFantomBySampleDataframe(
++     big.df, permissive.df, 'primary cell', 'T-cell', 'any', 0L, minoverlap.Tcell)
+Found 4380 candidates from ENCODE primary cell T-cell overlapping candidates from FANTOM with overlap type 'any', maxgap 0, min overlap 202 positions
+> 
+> test.tissue.placenta.df <- 
++   buildEncodeOverlappingFantomBySampleDataframe(
++     big.df, permissive.df, 'tissue', 'placenta', 'any', 0L, minoverlap.placenta)
+Found 4199 candidates from ENCODE tissue placenta overlapping candidates from FANTOM with overlap type 'any', maxgap 0, min overlap 202 positions
+```
+
+Two examples of usage (on primary cell/T-cell and tissue/placenta) with no min overlap are (1 position is the default):
 
 ```
 > test.primaryCell.Tcell.df <- 
@@ -237,6 +266,7 @@ Found 5883 candidates from ENCODE tissue placenta overlapping candidates from FA
 ```
 
 where the dataframes are
+
 ```
 filtered_dir <- "/Users/manuel/development/thesis/staging/ENCODE/filtered/"
 filtered_file <- "filtered_20170106.csv"
@@ -249,4 +279,46 @@ permissive.df <- read.csv(paste0(permissive_dir, permissive_file), sep="\t")
 
 ### Overlaps DB pipeline: ENCODE in dbSUPER
 
+The built component is able to overlap the full files of ENCODE and dbSUPER
 
+In the example showed below, the full list of 47 candidate enhancers from ENCODE DNase+H3K27ac is overlapped with the full human dbSUPER super-enhancer list and it's enriched with additional informations from both ENCODE and dbSUPER.
+The min overlap requested is 10%.
+
+```
+d = "/Users/manuel/development/thesis/download"
+s = "/Users/manuel/development/thesis/staging"
+o = "/Users/manuel/development/thesis/overlap"
+overlapper = EncodeOverlapper(d, s, o)
+overlapper.overlap_filtered_with_dbsuper(assembly='hg19', method='DNase_H3K27ac', min_overlap=0.1)
+```
+
+The resulting output is:
+
+```
+python encode_overlapper.py 
+
+ENCODE bed file: /Users/manuel/development/thesis/staging/ENCODE/filtered/filtered_hg19DNase_H3K27ac.bed
+dbSUPER bed file: /Users/manuel/development/thesis/download/dbSUPER/all_hg19_bed.bed
+Starting overlap...
+8526833 ENCODE.intersect(dbSUPER) results
+dbSUPER details file: /Users/manuel/development/thesis/download/dbSUPER/super-enhancers-annotations.csv
+Merging details from dbSUPER...
+ENCODE details file: /Users/manuel/development/thesis/staging/ENCODE/filtered/filtered_hg19DNase_H3K27ac.csv
+Merging details from ENCODE...
+Exporting merged file to: /Users/manuel/development/thesis/overlap/filtered_hg19DNase_H3K27ac_dbSUPER_overlapped.csv
+```
+
+The resulting overlapping file size is about 2.3 GB 
+
+The first line is
+
+<div>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+
+<tr>
+<td>chrom</td><td>start</td><td>end</td><td>name</td><td>	score</td><td>	strand	</td><td>SE_chrom</td><td>	SE_start</td><td>	SE_end</td><td>	SE_name</td><td>	SE_score</td><td>	SE_size</td><td>SE_associated_gene</td><td>	SE_method	</td><td>SE_biosample</td><td>	SE_ovlp_len</td><td>	SE_ovlp_pct</td><td>	candidate_id	</td><td>assembly	</td><td>biosample_term_id</td><td>	biosample_term_name	</td><td>biosample_type</td><td>	description</td><td>	developmental_slims</td><td>	encyclopedia	</td><td>encyclopedia_version</td><td>	organ_slims	</td><td>system_slims</td>	<td>method</td>
+</tr>
+</table>
+</div>

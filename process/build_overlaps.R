@@ -136,7 +136,8 @@ merged.df['fantom'][is.na(merged.df['fantom'])] <- FALSE
 
 # group the operations in a function
 buildEncodeOverlappingFantomBySampleDataframe <- 
-  function(encode.df, fantom.df, encode_sample_type, encode_sample_term_name, overlap_type, overlap_maxgap){
+  function(encode.df, fantom.df, encode_sample_type, encode_sample_term_name, 
+           overlap_type='any', overlap_maxgap=0L, overlap_min=1L){
     
     # subset by sample type, term name
     query.subset.df <- encode.df
@@ -148,16 +149,17 @@ buildEncodeOverlappingFantomBySampleDataframe <-
     subject.ranges <- makeGRangesFromDataFrame(fantom.df, keep.extra.columns = TRUE)
     
     query.overlapping.subject <- 
-      subsetByOverlaps(query.subset.ranges, subject.ranges, type = overlap_type, maxgap = overlap_maxgap)
+      subsetByOverlaps(query.subset.ranges, subject.ranges, type = overlap_type, maxgap = overlap_maxgap, minoverlap = overlap_min)
       
     overlap.df <- as.data.frame(query.overlapping.subject)
     overlap.df['encode'] = TRUE
     overlap.df['fantom'] = TRUE
     overlap.df['overlap_type'] = overlap_type
     overlap.df['overlap_maxgap'] = overlap_maxgap
+    overlap.df['overlap_min'] = overlap_min
     
     overlap.df.subsetcols <- 
-      subset(overlap.df, select = c('candidate_id', 'encode', 'fantom', 'overlap_type', 'overlap_maxgap'))
+      subset(overlap.df, select = c('candidate_id', 'encode', 'fantom', 'overlap_type', 'overlap_maxgap', 'overlap_min'))
     
     merged.df <- merge(overlap.df.subsetcols, query.subset.df, by='candidate_id', all = TRUE)
     
@@ -166,20 +168,34 @@ buildEncodeOverlappingFantomBySampleDataframe <-
     
     cat(
       sprintf(
-        "Found %d candidates from ENCODE %s %s overlapping candidates from FANTOM with overlap type '%s' and maxgap %d",
-        length(query.overlapping.subject), encode_sample_type, encode_sample_term_name, overlap_type, overlap_maxgap
+        "Found %d candidates from ENCODE %s %s overlapping candidates from FANTOM with overlap type '%s', maxgap %d, min overlap %d positions",
+        length(query.overlapping.subject), encode_sample_type, encode_sample_term_name, overlap_type, overlap_maxgap, overlap_min
         )
       )
     
     return(merged.df)
   }
 
+
+# compute min overlap function
+computeMinOverlapByMeanLen <-  function(encode.df, fantom.df, factor) {
+  mean.encode = mean(encode.df$end - encode.df$start)
+  mean.fantom = mean(permissive.df$end - permissive.df$start)
+  return(round(min(mean.encode, mean.fantom) * factor))
+}
+
+minoverlap.Tcell <- computeMinOverlapByMeanLen(big.df, permissive.df, 0.7)
+minoverlap.placenta <- computeMinOverlapByMeanLen(big.df, permissive.df, 0.7)
+
+
 # test the function
 test.primaryCell.Tcell.df <- 
-  buildEncodeOverlappingFantomBySampleDataframe(big.df, permissive.df, 'primary cell', 'T-cell', 'any', 0L)
+  buildEncodeOverlappingFantomBySampleDataframe(
+    big.df, permissive.df, 'primary cell', 'T-cell', 'any', 0L, minoverlap.Tcell)
 
 test.tissue.placenta.df <- 
-  buildEncodeOverlappingFantomBySampleDataframe(big.df, permissive.df, 'tissue', 'placenta', 'any', 0L)
+  buildEncodeOverlappingFantomBySampleDataframe(
+    big.df, permissive.df, 'tissue', 'placenta', 'any', 0L, minoverlap.placenta)
 
 # test intersection
 
