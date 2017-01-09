@@ -55,12 +55,20 @@ class FantomBedProcessor(Processor):
         bed_df = bed_df.drop('seq_id', axis=1)
         bed_df = bed_df.drop('itemRgb', axis=1)
 
-        output_filename = self.staging_path + "/permissive/"
-        if not os.path.exists(output_filename):
-            os.makedirs(output_filename)
-        output_filename = output_filename + experiment + ".csv"
+        output_filename_path = self.staging_path + "/permissive/"
+        if not os.path.exists(output_filename_path):
+            os.makedirs(output_filename_path)
+        output_filename = output_filename_path + experiment + ".csv"
+        output_bed_filename = output_filename_path + experiment + ".bed"
 
+        print("Exporting permissive file to:", output_filename)
         bed_df.to_csv(output_filename, index=None, sep='\t')
+
+        print("Exporting permissive file in bed format (substituting names with candidate_ids) to:",
+              output_bed_filename)
+        bed_df['name'] = bed_df['candidate_id']
+        bed_df = bed_df[['chrom', 'start', 'end', 'name', 'score', 'strand']]
+        bed_df.to_csv(output_bed_filename, index=None, sep='\t', header=None)
 
         print("Completed")
 

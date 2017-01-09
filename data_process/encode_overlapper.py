@@ -25,7 +25,7 @@ class EncodeOverlapper:
         value = row['SE_ovlp_len'] / size * 100.0
         return value
 
-    def overlap_filtered_with_dbsuper(self, assembly='hg19', method=None, min_overlap=0.1):
+    def overlap_filtered_with_dbsuper(self, assembly='hg19', method=None, min_overlap=0.1, export_temp=False):
         encode_file_name = "filtered_"
         if assembly:
             encode_file_name += assembly
@@ -50,10 +50,15 @@ class EncodeOverlapper:
         # print(len(full_dbSUPER_intersect_ENCODE), "dbSUPER.intersect(ENCODE) results")
         print(len(encode_intersect_dbsuper), "ENCODE.intersect(dbSUPER) results")
 
-        overlap_column_names = ['chrom', 'start', 'end', 'name', 'score', 'strand', 'thickStart', 'thickEnd', 'itemRgb',
-                                'SE_chrom', \
-                                'SE_start', 'SE_end', 'SE_name', 'SE_score']
+        overlap_column_names = ['chrom', 'start', 'end', 'name', 'score', 'strand', 'SE_chrom', 'SE_start', 'SE_end',
+                                'SE_name', 'SE_score']
+
         overlap_df = encode_intersect_dbsuper.to_dataframe(names=overlap_column_names)
+
+        if export_temp:
+            output_filename_temp = self.overlap_path + "/" + encode_file_name + "_dbSUPER_overlapped_temp.csv"
+            print("Exporting temporary overlapped file (no ENCODE details merge) to:", output_filename_temp)
+            overlap_df.to_csv(output_filename_temp, index=None, sep='\t')
 
         print("dbSUPER details file:", dbsuper_file_path)
         full_dbsuper_details_df = pd.read_csv(dbsuper_file_path, sep='\t', index_col='index')
@@ -63,9 +68,6 @@ class EncodeOverlapper:
             full_dbsuper_details_df[['ID', 'Size', 'Associated Gene', 'Method', 'Rank', 'Cell/Tissue']],
             how='left', left_on='SE_name', right_on='ID')
 
-        overlap_full_detail_df = overlap_full_detail_df.drop('thickStart', axis=1)
-        overlap_full_detail_df = overlap_full_detail_df.drop('thickEnd', axis=1)
-        overlap_full_detail_df = overlap_full_detail_df.drop('itemRgb', axis=1)
         overlap_full_detail_df = overlap_full_detail_df.drop('ID', axis=1)
         overlap_full_detail_df = overlap_full_detail_df.drop('Rank', axis=1)
 
@@ -82,6 +84,11 @@ class EncodeOverlapper:
         overlap_full_detail_df['SE_method'].fillna('.', inplace=True)
         overlap_full_detail_df['SE_biosample'].fillna('.', inplace=True)
 
+        if export_temp:
+            output_filename_temp = self.overlap_path + "/" + encode_file_name + "_dbSUPER_overlapped_temp_detail.csv"
+            print("Exporting temporary overlapped detailed file (no ENCODE details merge) to:", output_filename_temp)
+            overlap_full_detail_df.to_csv(output_filename_temp, index=None, sep='\t')
+
         print("ENCODE details file:", encode_file_path)
         encode_details_df = pd.read_csv(encode_file_path, sep='\t')
 
@@ -97,11 +104,13 @@ class EncodeOverlapper:
         print("Exporting overlapped file to:", output_filename)
         overlap_full_detail_encode_df.to_csv(output_filename, index=None, sep='\t')
 
+        print("Completed")
+
 
 # TODO test only
 
-d = "/Users/manuel/development/thesis/download"
-s = "/Users/manuel/development/thesis/staging"
-o = "/Users/manuel/development/thesis/overlap"
-overlapper = EncodeOverlapper(d, s, o)
-overlapper.overlap_filtered_with_dbsuper(assembly='hg19', method='DNase_H3K27ac', min_overlap=0.1)
+download = "/Users/manuel/development/thesis/download"
+staging = "/Users/manuel/development/thesis/staging"
+overlap = "/Users/manuel/development/thesis/overlap"
+overlapper = EncodeOverlapper(download, staging, overlap)
+overlapper.overlap_filtered_with_dbsuper(assembly='hg19', method='DNase_H3K27ac', min_overlap=0.1, export_temp=True)

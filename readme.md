@@ -308,7 +308,7 @@ Merging details from ENCODE...
 Exporting merged file to: /Users/manuel/development/thesis/overlap/filtered_hg19DNase_H3K27ac_dbSUPER_overlapped.csv
 ```
 
-The resulting overlapping file size is about 2.3 GB 
+The resulting overlapping file size is about 2.6 GB 
 
 The first line is
 
@@ -318,7 +318,11 @@ The first line is
     <tr style="text-align: right;">
 
 <tr>
-<td>chrom</td><td>start</td><td>end</td><td>name</td><td>	score</td><td>	strand	</td><td>SE_chrom</td><td>	SE_start</td><td>	SE_end</td><td>	SE_name</td><td>	SE_score</td><td>	SE_size</td><td>SE_associated_gene</td><td>	SE_method	</td><td>SE_biosample</td><td>	SE_ovlp_len</td><td>	SE_ovlp_pct</td><td>	candidate_id	</td><td>assembly	</td><td>biosample_term_id</td><td>	biosample_term_name	</td><td>biosample_type</td><td>	description</td><td>	developmental_slims</td><td>	encyclopedia	</td><td>encyclopedia_version</td><td>	organ_slims	</td><td>system_slims</td>	<td>method</td>
+	<td>chrom</td><td>	start</td><td>	end</td><td>	name	</td><td>score</td><td>	strand	</td><td>SE_chrom</td><td>	SE_start</td><td>	SE_end	</td><td>SE_name</td><td>	SE_score	</td><td>SE_size</td><td>	SE_associated_gene</td><td>	SE_method	</td><td>SE_biosample</td><td>	SE_ovlp_len	</td><td>SE_ovlp_pct</td><td>	candidate_id</td><td>	assembly</td><td>	biosample_term_id</td><td>	biosample_term_name</td><td>	biosample_type</td><td>	description</td><td>developmental_slims</td><td>	encyclopedia	</td><td>encyclopedia_version</td><td>	organ_slims</td><td>	system_slims</td><td>	method</td>
+</tr>
+<tr>
+<td>chr3	</td><td>152855118	</td><td>152861069</td><td>	ENCODE.3.ENCFF778PVS.0	</td><td>1</td><td>	.	</td><td>chr3	</td><td>152847915	</td><td>152884602</td><td>	SE_35899</td><td>	88</td><td>	36687.0</td><td>	RAP2B</td><td>	H3K27ac</td><td>	HMEC</td><td>	5951</td><td>	100.0</td><td>	ENCODE.3.ENCFF778PVS.0</td><td>	hg19</td><td>	CL:0002327</td><td>	mammary epithelial cell</td><td>	primary cell</td><td>	Enhancer-like regions using DNase and H3K27ac for mammary epithelial cell	</td><td>['ectoderm']</td><td>	ENCODE	</td><td>3</td><td>	['mammary gland']</td><td>	['integumental system']</td><td>	DNase_H3K27ac</td>
+
 </tr>
 </table>
 </div>

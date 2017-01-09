@@ -186,7 +186,7 @@ class EncodeBedProcessor(Processor):
                           "has no bed file: skip")
                     continue
 
-                bed_df = self.process_bed_file(index, annotation_df)
+                single_filename, bed_df = self.process_bed_file(index, annotation_df)
                 full_bed_df = full_bed_df.append(bed_df)
 
             except ValueError as e:
@@ -205,8 +205,10 @@ class EncodeBedProcessor(Processor):
         print("Exporting filtered file to:", output_filename)
         full_bed_df.to_csv(output_filename, index=None, sep='\t')
 
-        print("Exporting filtered file in bed format (substituting names with candidate_ids)")
-        full_bed_df.to_csv(output_bed_filename, index=None, sep='\t', header=None)
+        print("Exporting filtered file in bed format (substituting names with candidate_ids) to:", output_bed_filename)
+        full_bed_df['name'] = full_bed_df['candidate_id']
+        full_bed_df_bed = full_bed_df[['chrom', 'start', 'end', 'name', 'score', 'strand']]
+        full_bed_df_bed.to_csv(output_bed_filename, index=None, sep='\t', header=None)
 
         print("Completed")
 
