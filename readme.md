@@ -1,8 +1,18 @@
 
-# Thesis
+# OverlapsDB Tool
+#####mvanzetti
 
-## Candidate lists pipeline
+
+### Table of Contents  
+[Candidate Lists Pipeline](#candidate)  
+[Finding Overlaps](#overlaps)  
+[Building OverlapsDB](#db)  
+ 
+<a name="candidate"/>
+## Candidate Lists Pipeline
+[]()
 Provide a picture of the full pipeline
+
 
 ### ENCODE REST API Downloader tool
 Describe the tool built to download and reclassify the 437 samples containing putative enhancers from ENCODE database.
@@ -46,8 +56,11 @@ Citing Andersson et al. "In total, 38,554 enhancers were transcribed at a signif
 ### FANTOM Resource processor
 Describe the tool built to process downloaded FANTOM5 files and the possibile obtainable outputs
 
+<a name="overlaps"/>
 ## Finding Overlaps
+[]()
 The following are some preliminary analysis useful to seek the best strategy to build a final database
+
 ### Overlapping ENCODE hg19 DNase and H3K27ac candidates and FANTOM5 permissive enhancers
 
 **Tools**
@@ -276,8 +289,10 @@ permissive_dir <- "/Users/manuel/development/thesis/staging/FANTOM/permissive/"
 permissive_file <- "PERMISSIVE.csv"
 permissive.df <- read.csv(paste0(permissive_dir, permissive_file), sep="\t")
 ```
-
-### Overlaps DB pipeline: ENCODE in dbSUPER
+<a name="db"/>
+## Building OverlapsDB
+[]()
+### Phase 1: ENCODE in dbSUPER
 
 The built component is able to overlap the full files of ENCODE and dbSUPER
 
@@ -326,3 +341,5 @@ The first line is
 </tr>
 </table>
 </div>
+
+### Phase 2: (ENCODE in dbSUPER) in FANTOM
