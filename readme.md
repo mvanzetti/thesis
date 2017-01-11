@@ -11,7 +11,7 @@
 <a name="candidate"/>
 ## Candidate Lists Pipeline
 []()
-Provide a picture of the full pipeline
+TODO: Provide a picture of the full pipeline
 
 
 ### ENCODE REST API Downloader tool
@@ -20,13 +20,13 @@ Because of a bug in the ENCODE download tool, an implementation of a data scrapi
 
 
 ### ENCODE Resource Processor
-Describe the tool built to process downloaded ENCODE files and the possibile obtainable outputs
+TODO: Describe the tool built to process downloaded ENCODE files and the possibile obtainable outputs
 
 ### DNase and H3K27ac ENCODE candidate enhancers
 The full 437 samples list was then filtered following [this approach](http://zlab-annotations.umassmed.edu/enhancers/methods), so the list was restricted to putative enhancers of 47 human cell types showing both DNase and H3K27ac signals. The H3K27ac histone mark is associated with enhancer activity.
 
 ### dbSUPER Downloader tool
-Describe the tool built to download the full list of super-enhancers in two fashions:
+[TODO] Describe the tool built to download the full list of super-enhancers in two fashions:
 
 - A csv file with columns ['ID', 'Chrom', 'Start', 'End', 'Size', 'Associated Gene', 'Method', 'Rank', 'Cell/Tissue', 'Genome'] useful for enhancers classification
 - The full BED file, crucial for overlap analysis
@@ -54,7 +54,15 @@ Moreover, [here](http://enhancer.binf.ku.dk/presets/) the resources used in the 
 Citing Andersson et al. "In total, 38,554 enhancers were transcribed at a significant expression level in at least one primary cell or tissue sample. Below, we refer to this set as the ‘robust set’ of enhancers and indicate whenever it was used. For all analyses, we use the whole (‘permissive’) set of 43,011 enhancers if not otherwise mentioned", the starting point choosen list was the **permissive enhancers list**.
 
 ### FANTOM Resource processor
-Describe the tool built to process downloaded FANTOM5 files and the possibile obtainable outputs
+[TODO] Describe the tool built to process downloaded FANTOM5 files and the possibile obtainable outputs
+
+### Epigenomics Roadmap Download Tool
+[TODO]
+
+### Epigenomics Roadmap Resource Processor
+[TODO]
+
+
 
 <a name="overlaps"/>
 ## Finding Overlaps
@@ -343,3 +351,4 @@ The first line is
 </div>
 
 ### Phase 2: (ENCODE in dbSUPER) in FANTOM
+[TODO]

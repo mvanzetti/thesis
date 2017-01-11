@@ -1,21 +1,27 @@
-# Chip-Seq analysis for histone modification H3K27ac Tutorial
+# Chip-Seq analysis for histone modification H3K27ac
 
 ## Analysis preparation
-The [European Nucleotide Archive] (http://www.ebi.ac.uk/ena) provides many types of raw sequencingdata, sequence assembly information and functional annotation. 
+The [European Nucleotide Archive] (http://www.ebi.ac.uk/ena) provides many types of raw sequencing
+data, sequence assembly information and functional annotation. 
 
 ###FASTQ data download
-Download the [FASTQ](https://en.wikipedia.org/wiki/FASTQ_format) data corresponding toChIP-seq experiment mapping the H3K27ac histone modification in mouse Embryonic Stem cells (mES cells) along with the input control sample (see [here](http://epigenie.com/guide-getting-started-with-chip-seq/) for further informations about chip-seq sequencing).
+Download the [FASTQ](https://en.wikipedia.org/wiki/FASTQ_format) data corresponding to
+ChIP-seq experiment mapping the H3K27ac histone modification in mouse Embryonic Stem cells (mES cells) along with the input control sample (see [here](http://epigenie.com/guide-getting-started-with-chip-seq/) for further informations about chip-seq sequencing).
 
 From bash, connect to the ftp server `ftp://ftp.sra.ebi.ac.uk/` via `ftp` command and download these files
 
 ```
-get vol1/fastq/SRR066/SRR066787/SRR066787.fastq.gzget vol1/fastq/SRR066/SRR066766/SRR066766.fastq.gzget vol1/fastq/SRR066/SRR066767/SRR066767.fastq.gz
+get vol1/fastq/SRR066/SRR066787/SRR066787.fastq.gz
+get vol1/fastq/SRR066/SRR066766/SRR066766.fastq.gz
+get vol1/fastq/SRR066/SRR066767/SRR066767.fastq.gz
 ```
 
 In the folder you have downloaded it, run
 
 ```
-gunzip SRR066787.fastq.gzgunzip SRR066766.fastq.gzgunzip SRR066767.fastq.gz
+gunzip SRR066787.fastq.gz
+gunzip SRR066766.fastq.gz
+gunzip SRR066767.fastq.gz
 ```
 
 ### Install bowtie2, samtools and bedtools
@@ -78,12 +84,23 @@ Mus_musculus_Ensembl_NCBIM37/Mus_musculus/Ensembl/NCBIM37/Sequence/Bowtie2Index/
 ```
 
 ### Quality Assessment
-Sequenced reads are saved in .fastq files. The very first step in the analyses of sequencing results consistsin quality assessment. The R package *ShortRead* provides a *qa* function to perform this analysis.
+Sequenced reads are saved in .fastq files. The very first step in the analyses of sequencing results consists
+in quality assessment. The R package *ShortRead* provides a *qa* function to perform this analysis.
 
 In the following R code a vector with fastq file names is generated and then for each of these files and the custom qas function is applied in order to assess the quality of the reads in each file; then a Quality Assessment report is generated
 
 ```
-source("https://bioconductor.org/biocLite.R")fls = list.files(dataDirectory, ".fastq$", full=TRUE)names(fls) = sub(".fastq", "", basename(fls))biocLite("ShortRead")library(ShortRead)qas = lapply(seq_along(fls), function(i, fls) qa(readFastq(fls[i]), names(fls)[i]), fls)qa = do.call(rbind, qas)rpt = report(qa,dest = 'QA_report.html')
+source("https://bioconductor.org/biocLite.R")
+
+fls = list.files(dataDirectory, ".fastq$", full=TRUE)
+names(fls) = sub(".fastq", "", basename(fls))
+
+biocLite("ShortRead")
+library(ShortRead)
+
+qas = lapply(seq_along(fls), function(i, fls) qa(readFastq(fls[i]), names(fls)[i]), fls)
+qa = do.call(rbind, qas)
+rpt = report(qa,dest = 'QA_report.html')
 ```
 
 ### Read alignment
@@ -112,12 +129,21 @@ Output example:
 86.44% overall alignment rate
 ```
 
-The resulting [SAM](https://en.wikipedia.org/wiki/SAM_(file_format)) files are next transformed to [BAM](http://genome.sph.umich.edu/wiki/BAM) files and filtered for best aligned reads using samtools. In this case only reads with mapping quality equal to or more than 40 are considered ```
-samtools view -bS -q 40 ES_input.sam > ES_input_bestAlignment.bamsamtools view -bS -q 40 H3K27ac_rep1.sam > H3K27ac_rep1_bestAlignment.bamsamtools view -bS -q 40 H3K27ac_rep2.sam > H3K27ac_rep2_bestAlignment.bam
-```### Read FilteringRemove PCR duplicates
+The resulting [SAM](https://en.wikipedia.org/wiki/SAM_(file_format)) files are next transformed to [BAM](http://genome.sph.umich.edu/wiki/BAM) files and filtered for best aligned reads using samtools. In this case only reads with mapping quality equal to or more than 40 are considered 
 
 ```
-samtools rmdup -s ES_input_bestAlignment.bam ES_input_filtered.bamsamtools rmdup -s H3K27ac_rep1_bestAlignment.bam H3K27ac_rep1_filtered.bamsamtools rmdup -s H3K27ac_rep2_bestAlignment.bam H3K27ac_rep2_filtered.bam
+samtools view -bS -q 40 ES_input.sam > ES_input_bestAlignment.bam
+samtools view -bS -q 40 H3K27ac_rep1.sam > H3K27ac_rep1_bestAlignment.bam
+samtools view -bS -q 40 H3K27ac_rep2.sam > H3K27ac_rep2_bestAlignment.bam
+```
+
+### Read Filtering
+Remove PCR duplicates
+
+```
+samtools rmdup -s ES_input_bestAlignment.bam ES_input_filtered.bam
+samtools rmdup -s H3K27ac_rep1_bestAlignment.bam H3K27ac_rep1_filtered.bam
+samtools rmdup -s H3K27ac_rep2_bestAlignment.bam H3K27ac_rep2_filtered.bam
 ```
 
 Output example:
@@ -130,13 +156,18 @@ It means that 23 aligned reads of 99861671 were duplicates and got removed.
 Transform BAM files to [BED](http://www.ensembl.org/info/website/upload/bed.html) files using bedtools
 
 ```
-bedtools bamtobed -i ES_input_filtered.bam > ES_input_filtered.bedbedtools bamtobed -i H3K27ac_rep1_filtered.bam > H3K27ac_rep1_filtered.bedbedtools bamtobed -i H3K27ac_rep2_filtered.bam > H3K27ac_rep2_filtered.bed
+bedtools bamtobed -i ES_input_filtered.bam > ES_input_filtered.bed
+bedtools bamtobed -i H3K27ac_rep1_filtered.bam > H3K27ac_rep1_filtered.bed
+bedtools bamtobed -i H3K27ac_rep2_filtered.bam > H3K27ac_rep2_filtered.bed
 ```
 
-In order to be consistent with other tools, in the final step of data preprocessing add a 'chr' prefix to the chromosome names using[awk](https://en.wikipedia.org/wiki/AWK)
+In order to be consistent with other tools, in the final step of data preprocessing add a 'chr' prefix to the chromosome names using
+[awk](https://en.wikipedia.org/wiki/AWK)
 
 ```
-awk '$0="chr"$0' ES_input_filtered.bed > ES_input_filtered_ucsc.bedawk '$0="chr"$0' H3K27ac_rep1_filtered.bed > H3K27ac_rep1_filtered_ucsc.bedawk '$0="chr"$0' H3K27ac_rep2_filtered.bed > H3K27ac_rep2_filtered_ucsc.bed
+awk '$0="chr"$0' ES_input_filtered.bed > ES_input_filtered_ucsc.bed
+awk '$0="chr"$0' H3K27ac_rep1_filtered.bed > H3K27ac_rep1_filtered_ucsc.bed
+awk '$0="chr"$0' H3K27ac_rep2_filtered.bed > H3K27ac_rep2_filtered_ucsc.bed
 ```
 
 The resulting files contains the following columns:
@@ -170,7 +201,9 @@ chr12	106006035	106006071	SRR066787.77	42	+
 Finally, isolate data for chromosome 6
 
 ```
-awk '{if($1=="chr6") print $0}' ES_input_filtered_ucsc.bed > ES_input_filtered_ucsc_chr6.bedawk '{if($1=="chr6") print $0}' H3K27ac_rep1_filtered_ucsc.bed > H3K27ac_rep1_filtered_ucsc_chr6.bedawk '{if($1=="chr6") print $0}' H3K27ac_rep2_filtered_ucsc.bed > H3K27ac_rep2_filtered_ucsc_chr6.bed
+awk '{if($1=="chr6") print $0}' ES_input_filtered_ucsc.bed > ES_input_filtered_ucsc_chr6.bed
+awk '{if($1=="chr6") print $0}' H3K27ac_rep1_filtered_ucsc.bed > H3K27ac_rep1_filtered_ucsc_chr6.bed
+awk '{if($1=="chr6") print $0}' H3K27ac_rep2_filtered_ucsc.bed > H3K27ac_rep2_filtered_ucsc_chr6.bed
 ```
 
 ### Peak Finding
@@ -179,7 +212,8 @@ awk '{if($1=="chr6") print $0}' ES_input_filtered_ucsc.bed > ES_input_filtered_u
 Using [MACS](https://github.com/taoliu/MACS/), [find peaks](https://en.wikipedia.org/wiki/Peak_calling) in the genome using the control data file 
 
 ```
-macs2 callpeak -t H3K27ac_rep1_filtered_ucsc.bed -c ES_input_filtered_ucsc.bed -f BED -g mm --nomodel -n Rep1macs2 callpeak -t H3K27ac_rep2_filtered_ucsc.bed -c ES_input_filtered_ucsc.bed -f BED -g mm --nomodel -n Rep2
+macs2 callpeak -t H3K27ac_rep1_filtered_ucsc.bed -c ES_input_filtered_ucsc.bed -f BED -g mm --nomodel -n Rep1
+macs2 callpeak -t H3K27ac_rep2_filtered_ucsc.bed -c ES_input_filtered_ucsc.bed -f BED -g mm --nomodel -n Rep2
 ```
 
 The resulting output files are the following:
@@ -218,7 +252,9 @@ The resulting output files are the following:
 
 Finally, isolate data for chromosome 6
 
-```awk '{if($1=="chr6") print $0}' Rep1_peaks.narrowPeak > Rep1_peaks_ucsc_chr6.narrowPeakawk '{if($1=="chr6") print $0}' Rep2_peaks.narrowPeak > Rep2_peaks_ucsc_chr6.narroPeak
+```
+awk '{if($1=="chr6") print $0}' Rep1_peaks.narrowPeak > Rep1_peaks_ucsc_chr6.narrowPeak
+awk '{if($1=="chr6") print $0}' Rep2_peaks.narrowPeak > Rep2_peaks_ucsc_chr6.narroPeak
 ```
 
 
@@ -268,7 +304,9 @@ Above the resulting output files we are interested on:
 
 Isolate then data for chromosome 6
 
-```awk '{if($1=="chr6") print $0}' Rep1_peaks.broadPeak > Rep1_peaks_ucsc_chr6.broadPeakawk '{if($1=="chr6") print $0}' Rep2_peaks.broadPeak > Rep2_peaks_ucsc_chr6.broadPeak
+```
+awk '{if($1=="chr6") print $0}' Rep1_peaks.broadPeak > Rep1_peaks_ucsc_chr6.broadPeak
+awk '{if($1=="chr6") print $0}' Rep2_peaks.broadPeak > Rep2_peaks_ucsc_chr6.broadPeak
 ```
 
 
