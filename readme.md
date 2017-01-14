@@ -331,24 +331,199 @@ Merging details from ENCODE...
 Exporting merged file to: /Users/manuel/development/thesis/overlap/filtered_hg19DNase_H3K27ac_dbSUPER_overlapped.csv
 ```
 
-The resulting overlapping file size is about 2.6 GB 
+The resulting overlapping file size is about 2.84 GB 
 
-The first line is
+The first three (transposed) records are
 
 <div>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
-
-<tr>
-	<td>chrom</td><td>	start</td><td>	end</td><td>	name	</td><td>score</td><td>	strand	</td><td>SE_chrom</td><td>	SE_start</td><td>	SE_end	</td><td>SE_name</td><td>	SE_score	</td><td>SE_size</td><td>	SE_associated_gene</td><td>	SE_method	</td><td>SE_biosample</td><td>	SE_ovlp_len	</td><td>SE_ovlp_pct</td><td>	candidate_id</td><td>	assembly</td><td>	biosample_term_id</td><td>	biosample_term_name</td><td>	biosample_type</td><td>	description</td><td>developmental_slims</td><td>	encyclopedia	</td><td>encyclopedia_version</td><td>	organ_slims</td><td>	system_slims</td><td>	method</td>
-</tr>
-<tr>
-<td>chr3	</td><td>152855118	</td><td>152861069</td><td>	ENCODE.3.ENCFF778PVS.0	</td><td>1</td><td>	.	</td><td>chr3	</td><td>152847915	</td><td>152884602</td><td>	SE_35899</td><td>	88</td><td>	36687.0</td><td>	RAP2B</td><td>	H3K27ac</td><td>	HMEC</td><td>	5951</td><td>	100.0</td><td>	ENCODE.3.ENCFF778PVS.0</td><td>	hg19</td><td>	CL:0002327</td><td>	mammary epithelial cell</td><td>	primary cell</td><td>	Enhancer-like regions using DNase and H3K27ac for mammary epithelial cell	</td><td>['ectoderm']</td><td>	ENCODE	</td><td>3</td><td>	['mammary gland']</td><td>	['integumental system']</td><td>	DNase_H3K27ac</td>
-
-</tr>
+      <th></th>
+      <th>0</th>
+      <th>1</th>
+      <th>2</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>chrom</th>
+      <td>chr3</td>
+      <td>chr3</td>
+      <td>chr1</td>
+    </tr>
+    <tr>
+      <th>start</th>
+      <td>152855118</td>
+      <td>152855118</td>
+      <td>214611302</td>
+    </tr>
+    <tr>
+      <th>end</th>
+      <td>152861069</td>
+      <td>152861069</td>
+      <td>214622352</td>
+    </tr>
+    <tr>
+      <th>name</th>
+      <td>ENCODE.3.ENCFF778PVS.0</td>
+      <td>ENCODE.3.ENCFF778PVS.0</td>
+      <td>ENCODE.3.ENCFF778PVS.1</td>
+    </tr>
+    <tr>
+      <th>score</th>
+      <td>1</td>
+      <td>1</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>strand</th>
+      <td>.</td>
+      <td>.</td>
+      <td>.</td>
+    </tr>
+    <tr>
+      <th>SE_chrom</th>
+      <td>chr3</td>
+      <td>chr3</td>
+      <td>chr1</td>
+    </tr>
+    <tr>
+      <th>SE_start</th>
+      <td>152847915</td>
+      <td>152847755</td>
+      <td>214594593</td>
+    </tr>
+    <tr>
+      <th>SE_end</th>
+      <td>152884602</td>
+      <td>152864205</td>
+      <td>214629357</td>
+    </tr>
+    <tr>
+      <th>SE_name</th>
+      <td>SE_35899</td>
+      <td>SE_64659</td>
+      <td>SE_02460</td>
+    </tr>
+    <tr>
+      <th>SE_score</th>
+      <td>88</td>
+      <td>441</td>
+      <td>225</td>
+    </tr>
+    <tr>
+      <th>SE_size</th>
+      <td>36687.0</td>
+      <td>16450.0</td>
+      <td>34764.0</td>
+    </tr>
+    <tr>
+      <th>SE_associated_gene</th>
+      <td>RAP2B</td>
+      <td>RAP2B</td>
+      <td>PTPN14</td>
+    </tr>
+    <tr>
+      <th>SE_method</th>
+      <td>H3K27ac</td>
+      <td>H3K27ac</td>
+      <td>H3K27ac</td>
+    </tr>
+    <tr>
+      <th>SE_biosample</th>
+      <td>HMEC</td>
+      <td>NHEK</td>
+      <td>Astrocytes</td>
+    </tr>
+    <tr>
+      <th>SE_ovlp_len</th>
+      <td>5951</td>
+      <td>5951</td>
+      <td>11050</td>
+    </tr>
+    <tr>
+      <th>SE_ovlp_pct</th>
+      <td>100.0</td>
+      <td>100.0</td>
+      <td>100.0</td>
+    </tr>
+    <tr>
+      <th>candidate_id</th>
+      <td>ENCODE.3.ENCFF778PVS.0</td>
+      <td>ENCODE.3.ENCFF778PVS.0</td>
+      <td>ENCODE.3.ENCFF778PVS.1</td>
+    </tr>
+    <tr>
+      <th>assembly</th>
+      <td>hg19</td>
+      <td>hg19</td>
+      <td>hg19</td>
+    </tr>
+    <tr>
+      <th>biosample_term_id</th>
+      <td>CL:0002327</td>
+      <td>CL:0002327</td>
+      <td>CL:0002327</td>
+    </tr>
+    <tr>
+      <th>biosample_term_name</th>
+      <td>mammary epithelial cell</td>
+      <td>mammary epithelial cell</td>
+      <td>mammary epithelial cell</td>
+    </tr>
+    <tr>
+      <th>biosample_type</th>
+      <td>primary cell</td>
+      <td>primary cell</td>
+      <td>primary cell</td>
+    </tr>
+    <tr>
+      <th>description</th>
+      <td>Enhancer-like regions using DNase and H3K27ac ...</td>
+      <td>Enhancer-like regions using DNase and H3K27ac ...</td>
+      <td>Enhancer-like regions using DNase and H3K27ac ...</td>
+    </tr>
+    <tr>
+      <th>developmental_slims</th>
+      <td>['ectoderm']</td>
+      <td>['ectoderm']</td>
+      <td>['ectoderm']</td>
+    </tr>
+    <tr>
+      <th>encyclopedia</th>
+      <td>ENCODE</td>
+      <td>ENCODE</td>
+      <td>ENCODE</td>
+    </tr>
+    <tr>
+      <th>encyclopedia_version</th>
+      <td>3</td>
+      <td>3</td>
+      <td>3</td>
+    </tr>
+    <tr>
+      <th>organ_slims</th>
+      <td>['mammary gland']</td>
+      <td>['mammary gland']</td>
+      <td>['mammary gland']</td>
+    </tr>
+    <tr>
+      <th>system_slims</th>
+      <td>['integumental system']</td>
+      <td>['integumental system']</td>
+      <td>['integumental system']</td>
+    </tr>
+    <tr>
+      <th>method\n</th>
+      <td>DNase_H3K27ac\n</td>
+      <td>DNase_H3K27ac\n</td>
+      <td>DNase_H3K27ac\n</td>
+    </tr>
+  </tbody>
 </table>
 </div>
+
 
 ### Phase 2: (ENCODE in dbSUPER) in FANTOM
 [TODO]
