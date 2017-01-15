@@ -1,8 +1,9 @@
 
 /download/
-/data_process/__pycache__/
+/overlaps_db/data_process/__pycache__/
 .idea/
 /notebooks/.ipynb_checkpoints/
 /staging/
 /process/20160106.RData
 /overlap/
+/overlaps_db/overlaps_db.egg-info/

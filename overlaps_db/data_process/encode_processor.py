@@ -1,10 +1,10 @@
 import os
 import sys
-import time
 
 import pandas as pd
 from pybedtools import BedTool
-from data_process.processor import Processor
+
+from overlaps_db.data_process.processor import Processor
 
 
 class EncodeBedProcessor(Processor):

@@ -1,7 +1,8 @@
-from data_process.processor import Processor
-import pandas as pd
 import os
+
 from pybedtools import BedTool
+
+from overlaps_db.data_process.processor import Processor
 
 
 class FantomBedProcessor(Processor):

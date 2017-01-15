@@ -1,6 +1,5 @@
 #!/usr/bin/python
-from data_process import encode_downloader
-from data_process import encode_processor
+from overlaps_db.data_process import encode_downloader
 
 encode_path = "/Users/manuel/development/thesis/download/ENCODE"
 annotation_filename = "enhancer-like-annotations.csv"

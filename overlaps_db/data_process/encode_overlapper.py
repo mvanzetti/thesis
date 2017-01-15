@@ -1,12 +1,19 @@
+#! /usr/bin/env python
+# -*- coding: utf-8 -*-
+
+import logging
+import sys
 import pandas as pd
-
+from overlaps_db.cli import cli
 from pybedtools import BedTool
-
 
 # TODO use this paths
 # "/Users/manuel/development/thesis/download"
 # "/Users/manuel/development/thesis/staging"
 # "/Users/manuel/development/thesis/overlap"
+
+log = cli.start_logging(sys.argv[0], level=logging.DEBUG)
+
 
 class EncodeOverlapper:
     def __init__(self, download_path, staging_path, overlap_path):
@@ -26,6 +33,7 @@ class EncodeOverlapper:
         return value
 
     def overlap_filtered_with_dbsuper(self, assembly='hg19', method=None, min_overlap=0.1, export_temp=False):
+        pass
         encode_file_name = "filtered_"
         if assembly:
             encode_file_name += assembly
@@ -83,6 +91,7 @@ class EncodeOverlapper:
         overlap_full_detail_df['SE_associated_gene'].fillna('.', inplace=True)
         overlap_full_detail_df['SE_method'].fillna('.', inplace=True)
         overlap_full_detail_df['SE_biosample'].fillna('.', inplace=True)
+        overlap_full_detail_df['SE_encyclopedia'] = 'dbSUPER'
 
         if export_temp:
             output_filename_temp = self.overlap_path + "/" + encode_file_name + "_dbSUPER_overlapped_temp_detail.csv"
@@ -95,22 +104,21 @@ class EncodeOverlapper:
         print("Merging details from ENCODE...")
         overlap_full_detail_encode_df = overlap_full_detail_df.merge(
             encode_details_df[['candidate_id', 'assembly', 'biosample_term_id', 'biosample_term_name', 'biosample_type',
-                               'description', 'developmental_slims', 'encyclopedia', 'encyclopedia_version',
+                               'description', 'developmental_slims', 'encyclopedia',
                                'organ_slims', 'system_slims', 'method']],
             how='left', left_on='name', right_on='candidate_id'
         )
+
+        print("Rearranging columns...")
+        overlap_full_detail_encode_df = overlap_full_detail_encode_df[
+            ['chrom', 'start', 'end', 'name', 'score', 'strand', 'method', 'description', 'assembly', 'biosample_type',
+             'biosample_term_id', 'biosample_term_name', 'developmental_slims', 'system_slims', 'organ_slims',
+             'encyclopedia', 'SE_chrom', 'SE_start', 'SE_end',
+             'SE_name', 'SE_score', 'SE_size', 'SE_associated_gene', 'SE_method', 'SE_biosample', 'SE_ovlp_len',
+             'SE_ovlp_pct', 'SE_encyclopedia']]
 
         output_filename = self.overlap_path + "/" + encode_file_name + "_dbSUPER_overlapped.csv"
         print("Exporting overlapped file to:", output_filename)
         overlap_full_detail_encode_df.to_csv(output_filename, index=None, sep='\t')
 
         print("Completed")
-
-
-# TODO test only
-
-download = "/Users/manuel/development/thesis/download"
-staging = "/Users/manuel/development/thesis/staging"
-overlap = "/Users/manuel/development/thesis/overlap"
-overlapper = EncodeOverlapper(download, staging, overlap)
-overlapper.overlap_filtered_with_dbsuper(assembly='hg19', method='DNase_H3K27ac', min_overlap=0.1, export_temp=True)
