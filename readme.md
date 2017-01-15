@@ -331,7 +331,7 @@ Merging details from ENCODE...
 Exporting merged file to: /Users/manuel/development/thesis/overlap/filtered_hg19DNase_H3K27ac_dbSUPER_overlapped.csv
 ```
 
-The resulting overlapping file size is about 2.84 GB 
+The resulting overlapping file size is about 2.66 GB 
 
 The first three (transposed) records are
 
@@ -381,6 +381,72 @@ The first three (transposed) records are
       <td>.</td>
       <td>.</td>
       <td>.</td>
+    </tr>
+    <tr>
+      <th>method</th>
+      <td>DNase_H3K27ac</td>
+      <td>DNase_H3K27ac</td>
+      <td>DNase_H3K27ac</td>
+    </tr>
+    <tr>
+      <th>description</th>
+      <td>Enhancer-like regions using DNase and H3K27ac ...</td>
+      <td>Enhancer-like regions using DNase and H3K27ac ...</td>
+      <td>Enhancer-like regions using DNase and H3K27ac ...</td>
+    </tr>
+    <tr>
+      <th>assembly</th>
+      <td>hg19</td>
+      <td>hg19</td>
+      <td>hg19</td>
+    </tr>
+    <tr>
+      <th>biosample_type</th>
+      <td>primary cell</td>
+      <td>primary cell</td>
+      <td>primary cell</td>
+    </tr>
+    <tr>
+      <th>biosample_term_id</th>
+      <td>CL:0002327</td>
+      <td>CL:0002327</td>
+      <td>CL:0002327</td>
+    </tr>
+    <tr>
+      <th>biosample_term_name</th>
+      <td>mammary epithelial cell</td>
+      <td>mammary epithelial cell</td>
+      <td>mammary epithelial cell</td>
+    </tr>
+    <tr>
+      <th>developmental_slims</th>
+      <td>['ectoderm']</td>
+      <td>['ectoderm']</td>
+      <td>['ectoderm']</td>
+    </tr>
+    <tr>
+      <th>system_slims</th>
+      <td>['integumental system']</td>
+      <td>['integumental system']</td>
+      <td>['integumental system']</td>
+    </tr>
+    <tr>
+      <th>organ_slims</th>
+      <td>['mammary gland']</td>
+      <td>['mammary gland']</td>
+      <td>['mammary gland']</td>
+    </tr>
+    <tr>
+      <th>encyclopedia</th>
+      <td>ENCODE</td>
+      <td>ENCODE</td>
+      <td>ENCODE</td>
+    </tr>
+    <tr>
+      <th>encyclopedia_version</th>
+      <td>3</td>
+      <td>3</td>
+      <td>3</td>
     </tr>
     <tr>
       <th>SE_chrom</th>
@@ -447,78 +513,6 @@ The first three (transposed) records are
       <td>100.0</td>
       <td>100.0</td>
       <td>100.0</td>
-    </tr>
-    <tr>
-      <th>candidate_id</th>
-      <td>ENCODE.3.ENCFF778PVS.0</td>
-      <td>ENCODE.3.ENCFF778PVS.0</td>
-      <td>ENCODE.3.ENCFF778PVS.1</td>
-    </tr>
-    <tr>
-      <th>assembly</th>
-      <td>hg19</td>
-      <td>hg19</td>
-      <td>hg19</td>
-    </tr>
-    <tr>
-      <th>biosample_term_id</th>
-      <td>CL:0002327</td>
-      <td>CL:0002327</td>
-      <td>CL:0002327</td>
-    </tr>
-    <tr>
-      <th>biosample_term_name</th>
-      <td>mammary epithelial cell</td>
-      <td>mammary epithelial cell</td>
-      <td>mammary epithelial cell</td>
-    </tr>
-    <tr>
-      <th>biosample_type</th>
-      <td>primary cell</td>
-      <td>primary cell</td>
-      <td>primary cell</td>
-    </tr>
-    <tr>
-      <th>description</th>
-      <td>Enhancer-like regions using DNase and H3K27ac ...</td>
-      <td>Enhancer-like regions using DNase and H3K27ac ...</td>
-      <td>Enhancer-like regions using DNase and H3K27ac ...</td>
-    </tr>
-    <tr>
-      <th>developmental_slims</th>
-      <td>['ectoderm']</td>
-      <td>['ectoderm']</td>
-      <td>['ectoderm']</td>
-    </tr>
-    <tr>
-      <th>encyclopedia</th>
-      <td>ENCODE</td>
-      <td>ENCODE</td>
-      <td>ENCODE</td>
-    </tr>
-    <tr>
-      <th>encyclopedia_version</th>
-      <td>3</td>
-      <td>3</td>
-      <td>3</td>
-    </tr>
-    <tr>
-      <th>organ_slims</th>
-      <td>['mammary gland']</td>
-      <td>['mammary gland']</td>
-      <td>['mammary gland']</td>
-    </tr>
-    <tr>
-      <th>system_slims</th>
-      <td>['integumental system']</td>
-      <td>['integumental system']</td>
-      <td>['integumental system']</td>
-    </tr>
-    <tr>
-      <th>method\n</th>
-      <td>DNase_H3K27ac\n</td>
-      <td>DNase_H3K27ac\n</td>
-      <td>DNase_H3K27ac\n</td>
     </tr>
   </tbody>
 </table>
