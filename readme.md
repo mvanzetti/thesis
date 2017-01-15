@@ -7,6 +7,7 @@
 [Candidate Lists Pipeline](#candidate)  
 [Finding Overlaps](#overlaps)  
 [Building OverlapsDB](#db)  
+[Environments](#envs)
  
 <a name="candidate"/>
 ## Candidate Lists Pipeline
@@ -56,8 +57,9 @@ Citing Andersson et al. "In total, 38,554 enhancers were transcribed at a signif
 ### FANTOM Resource processor
 [TODO] Describe the tool built to process downloaded FANTOM5 files and the possibile obtainable outputs
 
-### Epigenomics Roadmap Download Tool
-[TODO]
+### Epigenomics Roadmap Downloader Tool
+The built downloader is able to download all the DNaseI putative enhancers BED files with coordinates for regions of each region type for each epigenome separately (see [here](http://egg2.wustl.edu/roadmap/web_portal/DNase_reg.html#delieation) and [here](http://egg2.wustl.edu/roadmap/data/byDataType/dnase/BED_files_enh/)).
+
 
 ### Epigenomics Roadmap Resource Processor
 [TODO]
@@ -300,26 +302,48 @@ permissive.df <- read.csv(paste0(permissive_dir, permissive_file), sep="\t")
 <a name="db"/>
 ## Building OverlapsDB
 []()
-### Phase 1: ENCODE in dbSUPER
+
+### Command Line Interface 
+The following explains the utility 
+
+```
+usage: overlap.py [-h] [--assembly ASSEMBLY] [--method METHOD]
+                  [--minoverlap MIN_OVERLAP] [--temp EXPORT_TEMP]
+                  {ENCODE} {FANTOM,dbSUPER,All}
+
+positional arguments:
+  {ENCODE}              Select one of the available sources
+  {FANTOM,dbSUPER,All}  Select the encyclopedia to consider
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --assembly ASSEMBLY   The assembly to use to build the overlaps files. For
+                        the human genome assembly, type hg19.
+  --method METHOD       Filter the source enhancer list by the provided method
+  --minoverlap MIN_OVERLAP
+                        The minimum overlap requested while overlapping.
+  --temp EXPORT_TEMP    If specified, export temporary files representing
+                        different overlapping phases
+
+```
+
+###ENCODE in dbSUPER
 
 The built component is able to overlap the full files of ENCODE and dbSUPER
 
 In the example showed below, the full list of 47 candidate enhancers from ENCODE DNase+H3K27ac is overlapped with the full human dbSUPER super-enhancer list and it's enriched with additional informations from both ENCODE and dbSUPER.
 The min overlap requested is 10%.
 
-```
-d = "/Users/manuel/development/thesis/download"
-s = "/Users/manuel/development/thesis/staging"
-o = "/Users/manuel/development/thesis/overlap"
-overlapper = EncodeOverlapper(d, s, o)
-overlapper.overlap_filtered_with_dbsuper(assembly='hg19', method='DNase_H3K27ac', min_overlap=0.1)
-```
+
+Default options are `assembly='hg19', method='DNase_H3K27ac', min_overlap=0.1`
 
 The resulting output is:
 
 ```
-python encode_overlapper.py 
-
+./overlap.py ENCODE dbSUPER
+2017-01-15 20:44:50,273 : MainProcess : INFO : ./overlap.py : OverlapsDB Overlap 🚀 🚀 🚀 🚀 🚀
+2017-01-15 20:44:50,275 : MainProcess : INFO : ./overlap.py : Initializing EncodeOverlapper
+2017-01-15 20:44:50,275 : MainProcess : INFO : ./overlap.py : Overlapping with dbSUPER
 ENCODE bed file: /Users/manuel/development/thesis/staging/ENCODE/filtered/filtered_hg19DNase_H3K27ac.bed
 dbSUPER bed file: /Users/manuel/development/thesis/download/dbSUPER/all_hg19_bed.bed
 Starting overlap...
@@ -328,7 +352,10 @@ dbSUPER details file: /Users/manuel/development/thesis/download/dbSUPER/super-en
 Merging details from dbSUPER...
 ENCODE details file: /Users/manuel/development/thesis/staging/ENCODE/filtered/filtered_hg19DNase_H3K27ac.csv
 Merging details from ENCODE...
-Exporting merged file to: /Users/manuel/development/thesis/overlap/filtered_hg19DNase_H3K27ac_dbSUPER_overlapped.csv
+Rearranging columns...
+Exporting overlapped file to: /Users/manuel/development/thesis/overlap/filtered_hg19DNase_H3K27ac_dbSUPER_overlapped.csv
+Completed
+2017-01-15 21:00:53,869 : MainProcess : INFO : ./overlap.py : Overlapping completed
 ```
 
 The resulting overlapping file size is about 2.66 GB 
@@ -381,6 +408,12 @@ The first three (transposed) records are
       <td>.</td>
       <td>.</td>
       <td>.</td>
+    </tr>
+    <tr>
+      <th>size</th>
+      <td>5951</td>
+      <td>5951</td>
+      <td>11050</td>
     </tr>
     <tr>
       <th>method</th>
@@ -441,12 +474,6 @@ The first three (transposed) records are
       <td>ENCODE</td>
       <td>ENCODE</td>
       <td>ENCODE</td>
-    </tr>
-    <tr>
-      <th>encyclopedia_version</th>
-      <td>3</td>
-      <td>3</td>
-      <td>3</td>
     </tr>
     <tr>
       <th>SE_chrom</th>
@@ -514,10 +541,464 @@ The first three (transposed) records are
       <td>100.0</td>
       <td>100.0</td>
     </tr>
+    <tr>
+      <th>SE_encyclopedia</th>
+      <td>dbSUPER</td>
+      <td>dbSUPER</td>
+      <td>dbSUPER</td>
+    </tr>
   </tbody>
 </table>
 </div>
 
 
-### Phase 2: (ENCODE in dbSUPER) in FANTOM
-[TODO]
+
+
+###ENCODE in FANTOM
+The built component is able to overlap the full files of ENCODE and FANTOM permissive enhancers.
+
+In the example showed below, the full list of 47 candidate enhancers from ENCODE DNase+H3K27ac is overlapped with the full list of FANTOM permissive enhancers and  enriched with additional informations from both ENCODE and FANTOM. The min overlap requested is 10%.
+
+Default options are `assembly='hg19', method='DNase_H3K27ac', min_overlap=0.1`
+
+The resulting output is:
+
+```
+./overlap.py ENCODE FANTOM
+2017-01-15 20:18:41,039 : MainProcess : INFO : ./overlap.py : OverlapsDB Overlap 🚀 🚀 🚀 🚀 🚀
+ENCODE bed file: /Users/manuel/development/thesis/staging/ENCODE/filtered/filtered_hg19DNase_H3K27ac.bed
+FANTOM bed file: /Users/manuel/development/thesis/staging/FANTOM/permissive/PERMISSIVE.bed
+Starting overlap...
+1801781 ENCODE.intersect(FANTOM) results
+Adding details from FANTOM...
+ENCODE details file: /Users/manuel/development/thesis/staging/ENCODE/filtered/filtered_hg19DNase_H3K27ac.csv
+Merging details from ENCODE...
+Rearranging columns...
+Exporting overlapped file to: /Users/manuel/development/thesis/overlap/filtered_hg19DNase_H3K27ac_FANTOM_overlapped.csv
+Completed
+
+```
+The resulting overlapping file size is about 493.5 MB
+
+The first three (transposed) overlapping records are
+
+
+<div>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>0</th>
+      <th>1</th>
+      <th>2</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>chrom</th>
+      <td>chr10</td>
+      <td>chr3</td>
+      <td>chr8</td>
+    </tr>
+    <tr>
+      <th>start</th>
+      <td>3892558</td>
+      <td>5062817</td>
+      <td>126230865</td>
+    </tr>
+    <tr>
+      <th>end</th>
+      <td>3895911</td>
+      <td>5068862</td>
+      <td>126234434</td>
+    </tr>
+    <tr>
+      <th>name</th>
+      <td>ENCODE.3.ENCFF778PVS.6</td>
+      <td>ENCODE.3.ENCFF778PVS.8</td>
+      <td>ENCODE.3.ENCFF778PVS.9</td>
+    </tr>
+    <tr>
+      <th>score</th>
+      <td>1</td>
+      <td>1</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>strand</th>
+      <td>.</td>
+      <td>.</td>
+      <td>.</td>
+    </tr>
+    <tr>
+      <th>size</th>
+      <td>3353</td>
+      <td>6045</td>
+      <td>3569</td>
+    </tr>
+    <tr>
+      <th>method</th>
+      <td>DNase_H3K27ac</td>
+      <td>DNase_H3K27ac</td>
+      <td>DNase_H3K27ac</td>
+    </tr>
+    <tr>
+      <th>description</th>
+      <td>Enhancer-like regions using DNase and H3K27ac ...</td>
+      <td>Enhancer-like regions using DNase and H3K27ac ...</td>
+      <td>Enhancer-like regions using DNase and H3K27ac ...</td>
+    </tr>
+    <tr>
+      <th>assembly</th>
+      <td>hg19</td>
+      <td>hg19</td>
+      <td>hg19</td>
+    </tr>
+    <tr>
+      <th>biosample_type</th>
+      <td>primary cell</td>
+      <td>primary cell</td>
+      <td>primary cell</td>
+    </tr>
+    <tr>
+      <th>biosample_term_id</th>
+      <td>CL:0002327</td>
+      <td>CL:0002327</td>
+      <td>CL:0002327</td>
+    </tr>
+    <tr>
+      <th>biosample_term_name</th>
+      <td>mammary epithelial cell</td>
+      <td>mammary epithelial cell</td>
+      <td>mammary epithelial cell</td>
+    </tr>
+    <tr>
+      <th>developmental_slims</th>
+      <td>['ectoderm']</td>
+      <td>['ectoderm']</td>
+      <td>['ectoderm']</td>
+    </tr>
+    <tr>
+      <th>system_slims</th>
+      <td>['integumental system']</td>
+      <td>['integumental system']</td>
+      <td>['integumental system']</td>
+    </tr>
+    <tr>
+      <th>organ_slims</th>
+      <td>['mammary gland']</td>
+      <td>['mammary gland']</td>
+      <td>['mammary gland']</td>
+    </tr>
+    <tr>
+      <th>encyclopedia</th>
+      <td>ENCODE</td>
+      <td>ENCODE</td>
+      <td>ENCODE</td>
+    </tr>
+    <tr>
+      <th>FA_chrom</th>
+      <td>chr10</td>
+      <td>chr3</td>
+      <td>chr8</td>
+    </tr>
+    <tr>
+      <th>FA_start</th>
+      <td>3893365</td>
+      <td>5067974</td>
+      <td>126231490</td>
+    </tr>
+    <tr>
+      <th>FA_end</th>
+      <td>3894190</td>
+      <td>5068590</td>
+      <td>126231859</td>
+    </tr>
+    <tr>
+      <th>FA_name</th>
+      <td>FANTOM.5.PERMISSIVE.3965</td>
+      <td>FANTOM.5.PERMISSIVE.26422</td>
+      <td>FANTOM.5.PERMISSIVE.39851</td>
+    </tr>
+    <tr>
+      <th>FA_score</th>
+      <td>693</td>
+      <td>256</td>
+      <td>140</td>
+    </tr>
+    <tr>
+      <th>FA_size</th>
+      <td>825</td>
+      <td>616</td>
+      <td>369</td>
+    </tr>
+    <tr>
+      <th>FA_method</th>
+      <td>CAGE_TCs</td>
+      <td>CAGE_TCs</td>
+      <td>CAGE_TCs</td>
+    </tr>
+    <tr>
+      <th>FA_ovlp_len</th>
+      <td>825</td>
+      <td>616</td>
+      <td>369</td>
+    </tr>
+    <tr>
+      <th>FA_ovlp_pct</th>
+      <td>24.6048</td>
+      <td>10.1902</td>
+      <td>10.339</td>
+    </tr>
+    <tr>
+      <th>FA_encyclopedia</th>
+      <td>FANTOM</td>
+      <td>FANTOM</td>
+      <td>FANTOM</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+<a name="envs"/>
+##Enviroments
+[]()
+### Conda environment
+```
+> conda list
+# packages in environment at /Users/manuel/anaconda:
+#
+_license                  1.1                      py35_1  
+_nb_ext_conf              0.3.0                    py35_0  
+alabaster                 0.7.9                    py35_0  
+anaconda                  custom                   py35_0  
+anaconda-clean            1.0.0                    py35_0  
+anaconda-client           1.5.1                    py35_0  
+anaconda-navigator        1.3.1                    py35_0  
+appnope                   0.1.0                    py35_0  
+appscript                 1.0.1                    py35_0  
+argcomplete               1.0.0                    py35_1  
+astroid                   1.4.7                    py35_0  
+astropy                   1.2.1               np111py35_0  
+babel                     2.3.4                    py35_0  
+backports                 1.0                      py35_0  
+bcftools                  1.3.1                         1    bioconda
+beautifulsoup4            4.5.3                    py35_0  
+bedtools                  2.26.0                        0    bioconda
+bitarray                  0.8.1                    py35_0  
+blaze                     0.10.1                   py35_0  
+bokeh                     0.12.2                   py35_0  
+boto                      2.42.0                   py35_0  
+bottleneck                1.1.0               np111py35_0  
+bowtie2                   2.2.8                    py35_2    bioconda
+cffi                      1.7.0                    py35_0  
+chest                     0.2.3                    py35_0  
+click                     6.6                      py35_0  
+cloudpickle               0.2.1                    py35_0  
+clyent                    1.2.2                    py35_0  
+colorama                  0.3.7                    py35_0  
+conda                     4.2.13                   py35_0  
+conda-build               2.0.2                    py35_0  
+conda-env                 2.6.0                         0  
+configobj                 5.0.6                    py35_0  
+contextlib2               0.5.3                    py35_0  
+cryptography              1.5                      py35_0  
+curl                      7.49.0                        1  
+cycler                    0.10.0                   py35_0  
+cython                    0.24.1                   py35_0  
+cytoolz                   0.8.0                    py35_0  
+dask                      0.11.0                   py35_0  
+datashape                 0.5.2                    py35_0  
+decorator                 4.0.10                   py35_0  
+dill                      0.2.5                    py35_0  
+docutils                  0.12                     py35_2  
+dynd-python               0.7.2                    py35_0  
+entrypoints               0.2.2                    py35_0  
+et_xmlfile                1.0.1                    py35_0  
+fastcache                 1.0.2                    py35_1  
+filelock                  2.0.6                    py35_0  
+flask                     0.11.1                   py35_0  
+flask-cors                2.1.2                    py35_0  
+freetype                  2.5.5                         1  
+get_terminal_size         1.0.0                    py35_0  
+gevent                    1.1.2                    py35_0  
+greenlet                  0.4.10                   py35_0  
+h5py                      2.6.0               np111py35_2  
+hdf5                      1.8.17                        1  
+heapdict                  1.0.0                    py35_1  
+htslib                    1.3.2                         0    bioconda
+icu                       54.1                          0  
+idna                      2.1                      py35_0  
+imagesize                 0.7.1                    py35_0  
+ipykernel                 4.5.0                    py35_0  
+ipython                   5.1.0                    py35_0  
+ipython_genutils          0.1.0                    py35_0  
+ipywidgets                5.2.2                    py35_0  
+itsdangerous              0.24                     py35_0  
+jbig                      2.1                           0  
+jdcal                     1.2                      py35_1  
+jedi                      0.9.0                    py35_1  
+jinja2                    2.8                      py35_1  
+jpeg                      8d                            2  
+jsonschema                2.5.1                    py35_0  
+jupyter                   1.0.0                    py35_3  
+jupyter_client            4.4.0                    py35_0  
+jupyter_console           5.0.0                    py35_0  
+jupyter_core              4.2.0                    py35_0  
+lazy-object-proxy         1.2.1                    py35_0  
+libdynd                   0.7.2                         0  
+libpng                    1.6.22                        0  
+libtiff                   4.0.6                         2  
+libxml2                   2.9.2                         0  
+libxslt                   1.1.28                        2  
+llvmlite                  0.13.0                   py35_0  
+locket                    0.2.0                    py35_1  
+lxml                      3.6.4                    py35_0  
+markupsafe                0.23                     py35_2  
+matplotlib                1.5.3               np111py35_0  
+mistune                   0.7.3                    py35_1  
+mkl                       11.3.3                        0  
+mkl-service               1.1.2                    py35_2  
+mpmath                    0.19                     py35_1  
+multipledispatch          0.4.8                    py35_0  
+nb_anacondacloud          1.2.0                    py35_0  
+nb_conda                  2.0.0                    py35_0  
+nb_conda_kernels          2.0.0                    py35_0  
+nbconvert                 4.2.0                    py35_0  
+nbformat                  4.1.0                    py35_0  
+nbpresent                 3.0.2                    py35_0  
+networkx                  1.11                     py35_0  
+nltk                      3.2.1                    py35_0  
+nose                      1.3.7                    py35_1  
+notebook                  4.2.3                    py35_0  
+numba                     0.28.1              np111py35_0  
+numexpr                   2.6.1               np111py35_0  
+numpy                     1.11.1                   py35_0  
+odo                       0.5.0                    py35_1  
+openpyxl                  2.3.2                    py35_0  
+openssl                   1.0.2j                        0  
+pandas                    0.19.1              np111py35_0  
+partd                     0.3.6                    py35_0  
+path.py                   8.2.1                    py35_0  
+pathlib2                  2.1.0                    py35_0  
+patsy                     0.4.1                    py35_0  
+pep8                      1.7.0                    py35_0  
+perl-threaded             5.22.0                       10    bioconda
+pexpect                   4.0.1                    py35_0  
+pickleshare               0.7.4                    py35_0  
+pillow                    3.3.1                    py35_0  
+pip                       8.1.2                    py35_0  
+pkginfo                   1.3.2                    py35_0  
+ply                       3.9                      py35_0  
+prompt_toolkit            1.0.3                    py35_0  
+psutil                    4.3.1                    py35_0  
+ptyprocess                0.5.1                    py35_0  
+py                        1.4.31                   py35_0  
+pyasn1                    0.1.9                    py35_0  
+pybedtools                0.7.8                    py35_1    bioconda
+pycosat                   0.6.1                    py35_1  
+pycparser                 2.14                     py35_1  
+pycrypto                  2.6.1                    py35_4  
+pycurl                    7.43.0                   py35_0  
+pyflakes                  1.3.0                    py35_0  
+pygments                  2.1.3                    py35_0  
+pylint                    1.5.4                    py35_1  
+pyopenssl                 16.0.0                   py35_0  
+pyparsing                 2.1.4                    py35_0  
+pyqt                      5.6.0                    py35_0  
+pysam                     0.9.1.4                  py35_1    bioconda
+pytables                  3.2.3.1             np111py35_0  
+pytest                    2.9.2                    py35_0  
+python                    3.5.2                         0  
+python-dateutil           2.5.3                    py35_0  
+python.app                1.2                      py35_4  
+pytz                      2016.6.1                 py35_0  
+pyyaml                    3.12                     py35_0  
+pyzmq                     15.4.0                   py35_0  
+qt                        5.6.0                         0  
+qtawesome                 0.3.3                    py35_0  
+qtconsole                 4.2.1                    py35_1  
+qtpy                      1.1.2                    py35_0  
+readline                  6.2                           2  
+redis                     3.2.0                         0  
+redis-py                  2.10.5                   py35_0  
+requests                  2.11.1                   py35_0  
+rope                      0.9.4                    py35_1  
+ruamel_yaml               0.11.14                  py35_0  
+samtools                  1.3.1                         5    bioconda
+scikit-image              0.12.3              np111py35_1  
+scikit-learn              0.17.1              np111py35_2  
+scipy                     0.18.1              np111py35_0  
+seaborn                   0.7.1                    py35_0  
+setuptools                27.2.0                   py35_0  
+simplegeneric             0.8.1                    py35_1  
+singledispatch            3.4.0.3                  py35_0  
+sip                       4.18                     py35_0  
+six                       1.10.0                   py35_0  
+snowballstemmer           1.2.1                    py35_0  
+sockjs-tornado            1.0.3                    py35_0  
+sphinx                    1.4.6                    py35_0  
+spyder                    3.0.0                    py35_0  
+sqlalchemy                1.0.13                   py35_0  
+sqlite                    3.13.0                        0  
+statsmodels               0.6.1               np111py35_1  
+sympy                     1.0                      py35_0  
+terminado                 0.6                      py35_0  
+tk                        8.5.18                        0  
+toolz                     0.8.0                    py35_0  
+tornado                   4.4.1                    py35_0  
+traitlets                 4.3.0                    py35_0  
+unicodecsv                0.14.1                   py35_0  
+urllib3                   1.12                     py35_0    bioconda
+wcwidth                   0.1.7                    py35_0  
+werkzeug                  0.11.11                  py35_0  
+wheel                     0.29.0                   py35_0  
+widgetsnbextension        1.2.6                    py35_0  
+wrapt                     1.10.6                   py35_0  
+xlrd                      1.0.0                    py35_0  
+xlsxwriter                0.9.3                    py35_0  
+xlwings                   0.10.0                   py35_0  
+xlwt                      1.1.2                    py35_0  
+xz                        5.2.2                         0  
+yaml                      0.1.6                         0  
+
+```
+
+### R environment
+```
+> sessionInfo()
+R version 3.3.2 (2016-10-31)
+Platform: x86_64-apple-darwin13.4.0 (64-bit)
+Running under: macOS Sierra 10.12.1
+
+locale:
+[1] it_IT.UTF-8/it_IT.UTF-8/it_IT.UTF-8/C/it_IT.UTF-8/it_IT.UTF-8
+
+attached base packages:
+ [1] grid      parallel  stats4    stats     graphics  grDevices utils     datasets  methods   base     
+
+other attached packages:
+[1] plyr_1.8.4           Gviz_1.18.1          GenomicRanges_1.26.2 GenomeInfoDb_1.10.2  IRanges_2.8.1       
+[6] S4Vectors_0.12.1     BiocGenerics_0.20.0 
+
+loaded via a namespace (and not attached):
+ [1] Rcpp_0.12.8                   biovizBase_1.22.0             lattice_0.20-34               Rsamtools_1.26.1             
+ [5] Biostrings_2.42.1             assertthat_0.1                digest_0.6.11                 mime_0.5                     
+ [9] R6_2.2.0                      backports_1.0.4               acepack_1.4.1                 RSQLite_1.1-1                
+[13] BiocInstaller_1.24.0          httr_1.2.1                    ggplot2_2.2.1                 zlibbioc_1.20.0              
+[17] GenomicFeatures_1.26.2        lazyeval_0.2.0                data.table_1.10.0             rpart_4.1-10                 
+[21] Matrix_1.2-7.1                checkmate_1.8.2               splines_3.3.2                 BiocParallel_1.8.1           
+[25] AnnotationHub_2.6.4           stringr_1.1.0                 foreign_0.8-67                RCurl_1.95-4.8               
+[29] biomaRt_2.30.0                munsell_0.4.3                 shiny_0.14.2                  httpuv_1.3.3                 
+[33] rtracklayer_1.34.1            base64enc_0.1-3               htmltools_0.3.5               nnet_7.3-12                  
+[37] SummarizedExperiment_1.4.0    tibble_1.2                    gridExtra_2.2.1               htmlTable_1.8                
+[41] interactiveDisplayBase_1.12.0 Hmisc_4.0-2                   matrixStats_0.51.0            XML_3.98-1.5                 
+[45] GenomicAlignments_1.10.0      bitops_1.0-6                  xtable_1.8-2                  gtable_0.2.0                 
+[49] DBI_0.5-1                     magrittr_1.5                  scales_0.4.1                  stringi_1.1.2                
+[53] XVector_0.14.0                latticeExtra_0.6-28           Formula_1.2-1                 RColorBrewer_1.1-2           
+[57] ensembldb_1.6.2               tools_3.3.2                   dichromat_2.0-0               BSgenome_1.42.0              
+[61] Biobase_2.34.0                yaml_2.1.14                   survival_2.40-1               AnnotationDbi_1.36.0         
+[65] colorspace_1.3-2              cluster_2.0.5                 memoise_1.0.0                 VariantAnnotation_1.20.2     
+[69] knitr_1.15.1   
+```
