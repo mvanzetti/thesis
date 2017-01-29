@@ -4,6 +4,7 @@
 .idea/
 /notebooks/.ipynb_checkpoints/
 /staging/
-/process/20160106.RData
+/exploration/20160106.RData
 /overlap/
 /overlaps_db/overlaps_db.egg-info/
+/latex/

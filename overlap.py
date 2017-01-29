@@ -28,6 +28,13 @@ def main(args):
                                                      min_overlap=args.min_overlap,
                                                      export_temp=args.export_temp)
 
+        elif args.encyclopedia == 'ROADMAP':
+            log.info("Overlapping with Epigenomics Roadmap")
+            overlapper.overlap_filtered_with_roadmap(assembly=args.assembly, method=args.method,
+                                                     min_overlap=args.min_overlap,
+                                                     export_temp=args.export_temp,
+                                                     use_test=args.use_test)
+
         log.info("Overlapping completed")
     else:
         print("selected source not implemented yet")
@@ -42,7 +49,7 @@ if __name__ == '__main__':
     parser.add_argument("source", help='Select one of the available sources', choices=['ENCODE'])
     parser.add_argument("encyclopedia",
                         help='Select the encyclopedia to consider',
-                        choices=['FANTOM', 'dbSUPER', 'All'])
+                        choices=['FANTOM', 'dbSUPER', 'ROADMAP', 'All'])
     parser.add_argument('--assembly', action="store", dest="assembly",
                         help='The assembly to use to build the overlaps files. \
                         For the human genome assembly, type hg19.',
@@ -55,6 +62,10 @@ if __name__ == '__main__':
     parser.add_argument('--temp', action="store", dest="export_temp",
                         help='If specified, export temporary files representing different overlapping phases',
                         default=False)
+    parser.add_argument('--test', action="store", dest="use_test",
+                        help='If specified, consider test file while overlapping. Use only for test purposes',
+                        default=False)
+
 
     received_args = parser.parse_args()
     log.info("Building OverlapsDB for %s in %s", received_args.source, received_args.encyclopedia)

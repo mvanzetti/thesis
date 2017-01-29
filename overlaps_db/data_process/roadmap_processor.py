@@ -46,7 +46,7 @@ class EpigenomicsRoadmapProcessor(Processor):
 
         self.make_directory(self.staging_path)
         metadata_filename = self.staging_path + "/" + "roadmap_metadata.csv"
-        metadata_df.to_csv(metadata_filename, sep='\t')
+        metadata_df.to_csv(metadata_filename, sep='\t', index=None)
 
         processed_filename = "processed"
 

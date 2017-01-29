@@ -62,9 +62,39 @@ The built downloader is able to download all the DNaseI putative enhancers BED f
 
 
 ### Epigenomics Roadmap Resource Processor
-[TODO]
+The processor merges together all the epigenomes candidate enhancers bed file sproducing one big bed file using the metadata file. The final processed bed file is ready for overlapping analysis. 
 
+Output example:
 
+```
+./process.py ROADMAP
+2017-01-28 19:06:55,820 : MainProcess : INFO : ./process.py : OverlapsDB Process 🚀 🚀 🚀 🚀 🚀
+2017-01-28 19:06:55,822 : MainProcess : INFO : ./process.py : Processing data for ROADMAP
+2017-01-28 19:06:55,822 : MainProcess : INFO : ./process.py : Optional parameters: Force: False
+2017-01-28 19:06:55,822 : MainProcess : INFO : ./process.py : Processing Epigenomics Roadmap data
+Copying metadata to staging...
+127 epigenomes found
+Building unified bed file in staging...
+Skipping: no bed file for E114
+Skipping: no bed file for E115
+Skipping: no bed file for E116
+Skipping: no bed file for E117
+Skipping: no bed file for E118
+Skipping: no bed file for E119
+Skipping: no bed file for E120
+Skipping: no bed file for E121
+Skipping: no bed file for E122
+Skipping: no bed file for E123
+Skipping: no bed file for E124
+Skipping: no bed file for E125
+Skipping: no bed file for E126
+Skipping: no bed file for E127
+Skipping: no bed file for E128
+Skipping: no bed file for E129
+Exporting processed file in bed format (substituting names with candidate_ids) to: /Users/manuel/development/thesis/staging/EpigenomicsRoadmap/processed.bed
+Completed
+2017-01-28 19:17:09,326 : MainProcess : INFO : ./process.py : Process completed
+```
 
 <a name="overlaps"/>
 ## Finding Overlaps
@@ -759,6 +789,249 @@ The first three (transposed) overlapping records are
   </tbody>
 </table>
 </div>
+
+###ENCODE in Epigenomics Roadmap
+
+The built component is able to overlap the full files of ENCODE and Epigenomics Roadmap putative enhancers.
+
+In the example showed below, the full list aggregating the 47 experiments of candidate enhancers from ENCODE DNase+H3K27ac is overlapped with the full list of the 111 Epigenomes DNaseI putative enhancers and enriched with additional informations from both ENCODE and Epigenomics Roadmap. The min overlap requested in this case is 40% (the sets are very large).
+
+Options are `assembly='hg19', method='DNase_H3K27ac', min_overlap=0.4`
+
+The resulting output is:
+
+```
+./overlap.py ENCODE ROADMAP --minoverlap 0.4 
+2017-01-29 13:19:08,923 : MainProcess : INFO : ./overlap.py : OverlapsDB Overlap 🚀 🚀 🚀 🚀 🚀
+2017-01-29 13:19:08,924 : MainProcess : INFO : ./overlap.py : Building OverlapsDB for ENCODE in ROADMAP
+2017-01-29 13:19:08,925 : MainProcess : INFO : ./overlap.py : Optional parameters: Assembly: hg19, Method: DNase_H3K27ac, Min Overlap: 0.4, Export temp: False
+2017-01-29 13:19:08,925 : MainProcess : INFO : ./overlap.py : Initializing EncodeOverlapper
+2017-01-29 13:19:08,925 : MainProcess : INFO : ./overlap.py : Overlapping with Epigenomics Roadmap
+ENCODE bed file: /Users/manuel/development/thesis/staging/ENCODE/filtered/filtered_hg19DNase_H3K27ac.bed
+ROADMAP bed file: /Users/manuel/development/thesis/staging/EpigenomicsRoadmap/processed.bed
+Starting overlap...
+25604650 ENCODE.intersect(ROADMAP) results
+ROADMAP details file: /Users/manuel/development/thesis/staging/EpigenomicsRoadmap/roadmap_metadata.csv
+Merging details from ROADMAP...
+ENCODE details file: /Users/manuel/development/thesis/staging/ENCODE/filtered/filtered_hg19DNase_H3K27ac.csv
+Merging details from ENCODE...
+Rearranging columns...
+Exporting overlapped file to: /Users/manuel/development/thesis/overlap/filtered_hg19DNase_H3K27ac_ROADMAP_overlapped.csv
+Completed
+2017-01-29 15:57:32,090 : MainProcess : INFO : ./overlap.py : Overlapping completed
+```
+
+The resulting overlapping file size is about 9.4 GB
+
+An example of three (transposed) overlapping records is the following
+
+<div>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>0</th>
+      <th>1</th>
+      <th>2</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>chrom</th>
+      <td>chr5</td>
+      <td>chr5</td>
+      <td>chr5</td>
+    </tr>
+    <tr>
+      <th>start</th>
+      <td>148864272</td>
+      <td>148864272</td>
+      <td>148864272</td>
+    </tr>
+    <tr>
+      <th>end</th>
+      <td>148869801</td>
+      <td>148869801</td>
+      <td>148869801</td>
+    </tr>
+    <tr>
+      <th>name</th>
+      <td>ENCODE.3.ENCFF778PVS.5</td>
+      <td>ENCODE.3.ENCFF778PVS.5</td>
+      <td>ENCODE.3.ENCFF778PVS.5</td>
+    </tr>
+    <tr>
+      <th>score</th>
+      <td>1</td>
+      <td>1</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>strand</th>
+      <td>.</td>
+      <td>.</td>
+      <td>.</td>
+    </tr>
+    <tr>
+      <th>size</th>
+      <td>5529</td>
+      <td>5529</td>
+      <td>5529</td>
+    </tr>
+    <tr>
+      <th>method</th>
+      <td>DNase_H3K27ac</td>
+      <td>DNase_H3K27ac</td>
+      <td>DNase_H3K27ac</td>
+    </tr>
+    <tr>
+      <th>description</th>
+      <td>Enhancer-like regions using DNase and H3K27ac ...</td>
+      <td>Enhancer-like regions using DNase and H3K27ac ...</td>
+      <td>Enhancer-like regions using DNase and H3K27ac ...</td>
+    </tr>
+    <tr>
+      <th>assembly</th>
+      <td>hg19</td>
+      <td>hg19</td>
+      <td>hg19</td>
+    </tr>
+    <tr>
+      <th>biosample_type</th>
+      <td>primary cell</td>
+      <td>primary cell</td>
+      <td>primary cell</td>
+    </tr>
+    <tr>
+      <th>biosample_term_id</th>
+      <td>CL:0002327</td>
+      <td>CL:0002327</td>
+      <td>CL:0002327</td>
+    </tr>
+    <tr>
+      <th>biosample_term_name</th>
+      <td>mammary epithelial cell</td>
+      <td>mammary epithelial cell</td>
+      <td>mammary epithelial cell</td>
+    </tr>
+    <tr>
+      <th>developmental_slims</th>
+      <td>['ectoderm']</td>
+      <td>['ectoderm']</td>
+      <td>['ectoderm']</td>
+    </tr>
+    <tr>
+      <th>system_slims</th>
+      <td>['integumental system']</td>
+      <td>['integumental system']</td>
+      <td>['integumental system']</td>
+    </tr>
+    <tr>
+      <th>organ_slims</th>
+      <td>['mammary gland']</td>
+      <td>['mammary gland']</td>
+      <td>['mammary gland']</td>
+    </tr>
+    <tr>
+      <th>encyclopedia</th>
+      <td>ENCODE</td>
+      <td>ENCODE</td>
+      <td>ENCODE</td>
+    </tr>
+    <tr>
+      <th>RO_chrom</th>
+      <td>chr5</td>
+      <td>chr5</td>
+      <td>chr5</td>
+    </tr>
+    <tr>
+      <th>RO_start</th>
+      <td>148865036</td>
+      <td>148865036</td>
+      <td>148865036</td>
+    </tr>
+    <tr>
+      <th>RO_end</th>
+      <td>148867514</td>
+      <td>148867514</td>
+      <td>148867514</td>
+    </tr>
+    <tr>
+      <th>RO_name</th>
+      <td>ROADMAP.E001.84443</td>
+      <td>ROADMAP.E002.28334</td>
+      <td>ROADMAP.E005.61152</td>
+    </tr>
+    <tr>
+      <th>RO_score</th>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>RO_strand</th>
+      <td>.</td>
+      <td>.</td>
+      <td>.</td>
+    </tr>
+    <tr>
+      <th>RO_size</th>
+      <td>2478</td>
+      <td>2478</td>
+      <td>2478</td>
+    </tr>
+    <tr>
+      <th>RO_method</th>
+      <td>DNase</td>
+      <td>DNase</td>
+      <td>DNase</td>
+    </tr>
+    <tr>
+      <th>RO_biosample_type</th>
+      <td>PrimaryCulture</td>
+      <td>PrimaryCulture</td>
+      <td>ESCDerived</td>
+    </tr>
+    <tr>
+      <th>RO_biosample_group</th>
+      <td>ESC</td>
+      <td>ESC</td>
+      <td>ES-deriv</td>
+    </tr>
+    <tr>
+      <th>RO_biosample_name</th>
+      <td>ES-I3 Cells</td>
+      <td>ES-WA7 Cells</td>
+      <td>H1 BMP4 Derived Trophoblast Cultured Cells</td>
+    </tr>
+    <tr>
+      <th>RO_biosample_anatomy</th>
+      <td>ESC</td>
+      <td>ESC</td>
+      <td>ESC_DERIVED</td>
+    </tr>
+    <tr>
+      <th>RO_ovlp_len</th>
+      <td>2478</td>
+      <td>2478</td>
+      <td>2478</td>
+    </tr>
+    <tr>
+      <th>RO_ovlp_pct</th>
+      <td>44.81823114487249</td>
+      <td>44.81823114487249</td>
+      <td>44.81823114487249</td>
+    </tr>
+    <tr>
+      <th>RO_encyclopedia</th>
+      <td>ROADMAP</td>
+      <td>ROADMAP</td>
+      <td>ROADMAP</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
 
 
 <a name="envs"/>
