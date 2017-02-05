@@ -9,3 +9,4 @@
 /overlaps_db/overlaps_db.egg-info/
 /latex/
 /storage/
+/overlaps_db/store/__pycache__/
