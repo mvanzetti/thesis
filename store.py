@@ -15,7 +15,7 @@ def main(args):
     source_file = "/Users/manuel/development/thesis/overlap/filtered_hg19DNase_H3K27ac_dbSUPER_overlapped.csv"
     store = HdfStore(storage_path=storage_dir)
     store.store_data(source=source_file, store_name="encode_overlaps.hdf", table_name="encode_dbsuper",
-                     queryable_cols=['biosample_term_name'])
+                     queryable_cols=['biosample_term_name', 'SE_associated_gene'])
 
 
 if __name__ == '__main__':

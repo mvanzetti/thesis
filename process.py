@@ -31,6 +31,13 @@ if __name__ == '__main__':
 
     parser.add_argument("source", help='Select one of the available sources',
                         choices=['ENCODE', 'ROADMAP', 'FANTOM', 'dbSUPER', 'All'])
+    parser.add_argument('--assembly', action="store", dest="assembly",
+                        help='The assembly to use to filter and process files. \
+                        For the human genome assembly, type hg19.',
+                        default='hg19')
+    parser.add_argument('--method', action="store", dest="method",
+                        help='Filter the source enhancer list by the provided method',
+                        default='DNase_H3K27ac')
     parser.add_argument('--force', action="store", dest="force",
                         help='If specified, force process even if resources are already present in the local dirs',
                         default=False)

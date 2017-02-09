@@ -334,16 +334,49 @@ permissive.df <- read.csv(paste0(permissive_dir, permissive_file), sep="\t")
 []()
 
 ### Command Line Interface 
-The following explains the utility 
+
+The following explain the utility 
+
+```
+usage: download.py [-h] [--force FORCE] {ENCODE,ROADMAP,FANTOM,dbSUPER,All}
+
+positional arguments:
+  {ENCODE,ROADMAP,FANTOM,dbSUPER,All}
+                        Select one of the available sources
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --force FORCE         If specified, force download even if resources are
+                        already present in the local dirs
+```
+
+```
+usage: process.py [-h] [--assembly ASSEMBLY] [--method METHOD] [--force FORCE]
+                  {ENCODE,ROADMAP,FANTOM,dbSUPER,All}
+
+positional arguments:
+  {ENCODE,ROADMAP,FANTOM,dbSUPER,All}
+                        Select one of the available sources
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --assembly ASSEMBLY   The assembly to use to filter and process files. For
+                        the human genome assembly, type hg19.
+  --method METHOD       Filter the source enhancer list by the provided method
+  --force FORCE         If specified, force process even if resources are
+                        already present in the local dirs
+```
 
 ```
 usage: overlap.py [-h] [--assembly ASSEMBLY] [--method METHOD]
                   [--minoverlap MIN_OVERLAP] [--temp EXPORT_TEMP]
-                  {ENCODE} {FANTOM,dbSUPER,All}
+                  [--test USE_TEST]
+                  {ENCODE} {FANTOM,dbSUPER,ROADMAP,All}
 
 positional arguments:
   {ENCODE}              Select one of the available sources
-  {FANTOM,dbSUPER,All}  Select the encyclopedia to consider
+  {FANTOM,dbSUPER,ROADMAP,All}
+                        Select the encyclopedia to consider
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -354,6 +387,9 @@ optional arguments:
                         The minimum overlap requested while overlapping.
   --temp EXPORT_TEMP    If specified, export temporary files representing
                         different overlapping phases
+  --test USE_TEST       If specified, consider test file while overlapping.
+                        Use only for test purposes
+
 
 ```
 
