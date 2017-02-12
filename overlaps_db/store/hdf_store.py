@@ -11,3 +11,6 @@ class HdfStore:
         df.reset_index(level=0, inplace=True)
 
         df.to_hdf(store_name, table_name, mode='w', format='table', data_columns=queryable_cols)
+
+    def store_dataframe(self, df, store_name, table_name, queryable_cols):
+        df.to_hdf(store_name, table_name, mode='w', format='table', data_columns=queryable_cols)

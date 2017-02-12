@@ -1068,8 +1068,6 @@ An example of three (transposed) overlapping records is the following
 </table>
 </div>
 
-
-
 <a name="envs"/>
 ##Enviroments
 []()
