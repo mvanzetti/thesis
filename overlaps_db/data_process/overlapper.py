@@ -43,7 +43,6 @@ class Overlapper:
         value = row[col_len] / size * 100.0
         return value
 
-    @staticmethod
     def intersect(self, bed, bed_overlap_with, left_outer_join, min_overlap):
         return bed.intersect(bed_overlap_with, loj=left_outer_join, f=min_overlap)
 

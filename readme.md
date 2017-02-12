@@ -1,9 +1,9 @@
 
 # OverlapsDB Tool
-#####mvanzetti
+#####Manuel Vanzetti
 
-
-### Table of Contents  
+___
+## Table of Contents  
 [Candidate Lists Pipeline](#candidate)  
 [Finding Overlaps](#overlaps)  
 [Building OverlapsDB](#db)  
