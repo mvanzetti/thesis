@@ -3,14 +3,23 @@
 #####Manuel Vanzetti
 ___
 ## Table of Contents  
-[Null Models](#null)  
+
+[Null Models](#null)
+  
+[Z-test](#ztest) 
+
 [Fisher's Exact Test](#fisher)  
+
 [Jaccard Similarity Index](#jaccard)  
-[Relative Distance](#reldist)  
-[Relative Distance](#bib)  
 
+[Relative Distance](#reldist) 
 
- 
+[Bibliography](#bib)  
+
+### Note on Reference Genome Assembly
+ENCODE, FANTOM and dbSUPER enhancer candidates have been annotated with the hg19 genome build. 
+For the sake of consistency, all the performed analysis have been made considering the same hg19 reference genome.
+
 <a name="null"/>
 ## Null Models
 []()
@@ -39,6 +48,11 @@ Given a list of intervarls A and a second list B:
 3. The overlaps between A and B' are computed
 
 This method does not conserve the size distribution of the B candidates but ensures the randomness.
+
+<a name="ztest"/>
+## Z-test
+[]()
+
 
 <a name="fisher"/>
 ## Fisher's Exact Test
