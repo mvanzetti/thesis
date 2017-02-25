@@ -12,7 +12,9 @@ overlap_tests = [{
                     'min_ovlp', 'ovlp_count', 'z_random', 'z_shuffled', 'fisher_right_p', 'jaccard']
     },
     'reldist': {
-        'columns': []
+        'columns': ['encyclopedia', 'biosample_name', 'ovlp_encyclopedia', 'encyclopedia_size',
+                    'ovlp_encyclopedia_size',
+                    'reldist', 'ovlp_count', 'ovlp_fraction']
     }
 
 }]
