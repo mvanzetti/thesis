@@ -12,11 +12,10 @@ def main(args):
     download_dir = "/Users/manuel/development/thesis/download"
     staging_dir = "/Users/manuel/development/thesis/staging"
     overlap_dir = "/Users/manuel/development/thesis/overlap"
-    storage_dir = "/Users/manuel/development/thesis/storage"
 
     if args.source == 'ENCODE':
         log.info("Initializing EncodeOverlapper")
-        overlapper = EncodeOverlapper(download_dir, staging_dir, overlap_dir, storage_dir)
+        overlapper = EncodeOverlapper(download_dir, staging_dir, overlap_dir)
 
         if args.encyclopedia == 'FANTOM':
             log.info("Overlapping with FANTOM")
@@ -42,15 +41,15 @@ def main(args):
 
 
 if __name__ == '__main__':
-    cli.preamble("Overlap")
+    cli.preamble("Analyze")
     # cli.print_banner("/Users/manuel/development/thesis/overlaps_db/resources/banner.txt")
 
     parser = cli.get_default_parser()
 
-    parser.add_argument("source", help='Select one of the available sources', choices=['ENCODE'])
+    parser.add_argument("source", help='Select one of the available sources', choices=['ENCODE', 'ENCODE_FANTOM'])
     parser.add_argument("encyclopedia",
                         help='Select the encyclopedia to consider',
-                        choices=['FANTOM', 'dbSUPER', 'ROADMAP', 'All'])
+                        choices=['FANTOM', 'dbSUPER', 'ROADMAP'])
     parser.add_argument('--assembly', action="store", dest="assembly",
                         help='The assembly to use to build the overlaps files. \
                         For the human genome assembly, type hg19.',
@@ -66,6 +65,7 @@ if __name__ == '__main__':
     parser.add_argument('--test', action="store", dest="use_test",
                         help='If specified, consider test file while overlapping. Use only for test purposes',
                         default=False)
+
 
     received_args = parser.parse_args()
     log.info("Building OverlapsDB for %s in %s", received_args.source, received_args.encyclopedia)

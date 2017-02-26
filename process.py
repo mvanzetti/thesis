@@ -4,6 +4,8 @@ import logging
 import sys
 from overlaps_db.cli import cli
 from overlaps_db.data_process.roadmap_processor import EpigenomicsRoadmapProcessor
+from overlaps_db.data_process.encode_processor import EncodeBedProcessor
+from overlaps_db.data_process.fantom_processor import FantomBedProcessor
 
 log = cli.start_logging(sys.argv[0], level=logging.DEBUG)
 
@@ -11,9 +13,23 @@ log = cli.start_logging(sys.argv[0], level=logging.DEBUG)
 def main(args):
     download_dir = "/Users/manuel/development/thesis/download"
     staging_dir = "/Users/manuel/development/thesis/staging"
+    storage_dir = "/Users/manuel/development/thesis/storage"
     overlap_dir = "/Users/manuel/development/thesis/overlap"
 
-    if args.source == 'ROADMAP':
+    if args.source == 'ENCODE':
+        log.info("Processing ENCODE data")
+        processor = EncodeBedProcessor(download_path=download_dir, staging_path=staging_dir, storage_path=storage_dir)
+        processor.prepare()
+        processor.filter(assembly=args.assembly, method=args.method, force=args.force)
+        log.info("Process completed")
+
+    elif args.source == 'FANTOM':
+        log.info("Processing FANTOM data")
+        processor = FantomBedProcessor(download_path=download_dir, staging_path=staging_dir, storage_path=storage_dir)
+        processor.process_permissive()
+        log.info("Process completed")
+
+    elif args.source == 'ROADMAP':
         log.info("Processing Epigenomics Roadmap data")
         processor = EpigenomicsRoadmapProcessor(download_path=download_dir, staging_path=staging_dir)
         processor.process()

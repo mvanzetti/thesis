@@ -1,14 +1,21 @@
 class Overlapper:
-    def __init__(self, download_path, staging_path, overlap_path):
+    def __init__(self, download_path, staging_path, overlap_path, storage_path):
         self.download_path = download_path
         self.staging_path = staging_path
         self.overlap_path = overlap_path
+        self.storage_path = storage_path
 
     @staticmethod
     def set_col_value(row, col_name, value):
         if row[col_name] == '.':
             return '.'
         return value
+
+    @staticmethod
+    def set_ovlp_name(row, col_name_x, col_name_y):
+        if row[col_name_x] != "." and row[col_name_y] != ".":
+            return row[col_name_x] + ".OVLP." + row[col_name_y]
+        return "."
 
     @staticmethod
     def compute_size(row, prefix=None):

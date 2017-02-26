@@ -5,11 +5,15 @@ import pandas as pd
 from pybedtools import BedTool
 
 from overlaps_db.data_process.processor import Processor
+from overlaps_db.store.hdf_store_manager import HdfStoreManager
+
+from utils.data_process_utils import stringify_columns
 
 
 class EncodeBedProcessor(Processor):
-    def __init__(self, download_path, staging_path):
-        super(EncodeBedProcessor, self).__init__(download_path, staging_path)
+    def __init__(self, download_path, staging_path, storage_path):
+        subfolder = "/ENCODE"
+        super(EncodeBedProcessor, self).__init__(download_path + subfolder, staging_path + subfolder, storage_path)
 
     @staticmethod
     def label_method(row):
@@ -23,11 +27,14 @@ class EncodeBedProcessor(Processor):
         else:
             return 'Unknown'
 
-    def prepare(self, annotation_filename, prepared_filename):
+    def prepare(self):
+        storage_layer = HdfStoreManager(self.storage_path)
+
         print("Importing main annotation file...")
-        file_list_name = self.download_path + "/" + annotation_filename
-        file_list_output_name = self.staging_path + "/" + prepared_filename
-        annotation_df = pd.read_csv(file_list_name, sep='\t', index_col='index')
+        # file_list_name = self.download_path + "/" + annotation_filename
+        # file_list_output_name = self.staging_path + "/" + prepared_filename
+        # annotation_df = pd.read_csv(file_list_name, sep='\t', index_col='index')
+        annotation_df = storage_layer.read_dataframe('downloads.hdf', 'encode_metadata')
 
         imported_df = annotation_df.query('imported == True')
         count_downloaded = len(imported_df)
@@ -77,8 +84,10 @@ class EncodeBedProcessor(Processor):
                         file_path = current_dir + "/" + file
                         output_df.set_value(index, 'bed_filepath', file_path)
 
-        print("Exporting .bed.gz file references to:", file_list_output_name)
-        output_df.to_csv(file_list_output_name, sep='\t')
+        print("Exporting metadata and .bed.gz file references to staging")
+        stringify_columns(output_df, ['developmental_slims', 'organ_slims', 'system_slims'])
+        storage_layer.store_dataframe_fixed(output_df, 'encode_staging.hdf', 'encode_metadata')
+        # output_df.to_csv(file_list_output_name, sep='\t')
         print("Completed")
 
     def process_bed_file(self, index, annotation_df):
@@ -118,48 +127,18 @@ class EncodeBedProcessor(Processor):
         bed_df = bed_df.drop('thickEnd', axis=1)
         bed_df = bed_df.drop('itemRgb', axis=1)
 
-        output_filename = self.staging_path + "/merged/" + experiment + ".csv"
+        # output_filename = self.staging_path + "/merged/" + experiment + ".csv"
 
-        return output_filename, bed_df
+        return bed_df
 
-    def merge(self, prepared_filename, force=False):
-        file_list_name = self.staging_path + "/" + prepared_filename
-        annotation_df = pd.read_csv(file_list_name, sep='\t', index_col='index')
+    def filter(self, assembly=None, method=None, force=False):
+        storage_layer = HdfStoreManager(self.storage_path)
+        # prepared_filename = "enhancer-like-bed_refs.csv"
+        # file_list_name = self.staging_path + "/" + prepared_filename
+        # annotation_df = pd.read_csv(file_list_name, sep='\t', index_col='index')
+        annotation_df = storage_layer.read_dataframe('encode_staging.hdf', 'encode_metadata')
+        annotation_df.reset_index(inplace=True, drop=True)
 
-        print("Merging annotations and info files in staging...")
-
-        for index, row in annotation_df.iterrows():
-            try:
-                if annotation_df.get_value(index, 'merged') and not force:
-                    continue
-
-                if pd.isnull(annotation_df.get_value(index, 'bed_filepath')):
-                    print("Accession", annotation_df.get_value(index, "accession"), "at index", index,
-                          "has no bed file: skip")
-                    continue
-
-                output_filename, bed_df = self.process_bed_file(index, annotation_df)
-
-                bed_df.to_csv(output_filename, index=None, sep='\t')
-                annotation_df.set_value(index, 'merged', True)
-
-            except ValueError as e:
-                print("ValueError at index", index, ":{0}".format(e))
-                print("Jumping to next row...")
-
-            except:
-                print("Unexpected error:", sys.exc_info()[0])
-                print("Updating info file before to raise exception...")
-                annotation_df.to_csv(file_list_name, sep='\t')
-                raise
-
-        print("Updating info file...")
-        annotation_df.to_csv(file_list_name, sep='\t')
-        print("Completed")
-
-    def filter(self, prepared_filename, assembly=None, method=None, force=False):
-        file_list_name = self.staging_path + "/" + prepared_filename
-        annotation_df = pd.read_csv(file_list_name, sep='\t', index_col='index')
         filter_file_name = "filtered_"
 
         if assembly:
@@ -186,7 +165,7 @@ class EncodeBedProcessor(Processor):
                           "has no bed file: skip")
                     continue
 
-                single_filename, bed_df = self.process_bed_file(index, annotation_df)
+                bed_df = self.process_bed_file(index, annotation_df)
                 full_bed_df = full_bed_df.append(bed_df)
 
             except ValueError as e:
@@ -196,30 +175,27 @@ class EncodeBedProcessor(Processor):
             except:
                 print("Unexpected error:", sys.exc_info()[0])
                 print("Updating info file before to raise exception...")
-                annotation_df.to_csv(file_list_name, sep='\t')
+                storage_layer.store_dataframe_fixed(annotation_df, 'encode_staging.hdf', 'encode_metadata')
+                # annotation_df.to_csv(file_list_name, sep='\t')
                 raise
 
-        output_filename = self.staging_path + "/filtered/" + filter_file_name + ".csv"
-        output_bed_filename = self.staging_path + "/filtered/" + filter_file_name + ".bed"
+        # output_filename = self.staging_path + "/filtered/" + filter_file_name + ".csv"
+        # output_bed_filename = self.staging_path + "/filtered/" + filter_file_name + ".bed"
 
-        print("Exporting filtered file to:", output_filename)
-        full_bed_df.to_csv(output_filename, index=None, sep='\t')
+        print("Exporting filtered file to staging:", filter_file_name,
+              " - queryable columns are [biosample_term_name, biosample_type]")
+        storage_layer.store_dataframe(full_bed_df, 'encode_staging.hdf', filter_file_name,
+                                      ['biosample_term_name', 'biosample_type'])
+        # full_bed_df.to_csv(output_filename, index=None, sep='\t')
 
-        print("Exporting filtered file in bed format (substituting names with candidate_ids) to:", output_bed_filename)
+        output_bed_filename = filter_file_name + '_bed'
+        print("Exporting filtered file in bed format (substituting names with candidate_ids) to staging:",
+              output_bed_filename)
         full_bed_df['name'] = full_bed_df['candidate_id']
         full_bed_df_bed = full_bed_df[['chrom', 'start', 'end', 'name', 'score', 'strand']]
-        full_bed_df_bed.to_csv(output_bed_filename, index=None, sep='\t', header=None)
+
+        storage_layer.store_dataframe_fixed(full_bed_df_bed, 'encode_staging.hdf', output_bed_filename)
+
+        # full_bed_df_bed.to_csv(output_bed_filename, index=None, sep='\t', header=None)
 
         print("Completed")
-
-
-# TODO test only
-encode_path = "/Users/manuel/development/thesis/download/ENCODE"
-encode_staging_path = "/Users/manuel/development/thesis/staging/ENCODE"
-input_csv = "enhancer-like-annotations.csv"
-output_csv = "enhancer-like-bed_refs.csv"
-
-merger = EncodeBedProcessor(encode_path, encode_staging_path)
-# merger.prepare(input_csv, output_csv)
-# merger.merge(output_csv, force=False)
-merger.filter(output_csv, assembly='hg19', method='DNase_H3K27ac')

@@ -9,7 +9,8 @@ class EpigenomicsRoadmapDownloader:
     headers = {'accept': 'application/json'}
     main_url = "http://egg2.wustl.edu/roadmap/data/"
 
-    def __init__(self, download_directory):
+    def __init__(self, storage_directory, download_directory):
+        self.storage_directory = storage_directory
         self.download_directory = download_directory + "/EpigenomicsRoadmap"
 
     @staticmethod
