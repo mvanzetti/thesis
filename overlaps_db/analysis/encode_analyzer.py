@@ -29,31 +29,31 @@ class EncodeAnalyzer(OverlapAnalyzer):
 
         print(len(annotation_df), "experiments found")
 
-        # print("Computing fisher test, jaccard index for ENCODE and FANTOM overlaps,"
-        #       " and z tests over random and shuffled null models...")
-        # tests_df = self.init_fisher_jaccard_z_tests_df()
-        #
-        # for index, row in annotation_df.iterrows():
-        #     biosample_term_id = row['biosample_term_id']
-        #     biosample_term_name = row['biosample_term_name']
-        #
-        #     print("Processing", biosample_term_name)
-        #     timer = Timer()
-        #     timer.start()
-        #
-        #     biosample_bed_name = utils.build_biosample_bed_file_name(biosample_term_id, assembly, method)
-        #     biosample_bed = storage_layer.read_bed_file('encode_staging.hdf', biosample_bed_name)
-        #     biosample_bed_sorted = biosample_bed.sort()
-        #
-        #     tests_df = tests_df.append(
-        #         self.compute_fisher_jaccard_z_tests(biosample_bed_sorted, fantom_bed_sorted, 'ENCODE', 'FANTOM',
-        #                                             biosample_term_name,
-        #                                             assembly, overlap_intervals, samples_num))
-        #     print(timer.elapsed())
-        #
-        # print("Storing in stats...")
-        # tests_df.reset_index(inplace=True, drop=True)
-        # storage_layer.store_dataframe(tests_df, 'stats.hdf', 'encode_fantom_tests')
+        print("Computing fisher test, jaccard index for ENCODE and FANTOM overlaps,"
+              " and z tests over random and shuffled null models...")
+        tests_df = self.init_fisher_jaccard_z_tests_df()
+
+        for index, row in annotation_df.iterrows():
+            biosample_term_id = row['biosample_term_id']
+            biosample_term_name = row['biosample_term_name']
+
+            print("Processing", biosample_term_name)
+            timer = Timer()
+            timer.start()
+
+            biosample_bed_name = utils.build_biosample_bed_file_name(biosample_term_id, assembly, method)
+            biosample_bed = storage_layer.read_bed_file('encode_staging.hdf', biosample_bed_name)
+            biosample_bed_sorted = biosample_bed.sort()
+
+            tests_df = tests_df.append(
+                self.compute_fisher_jaccard_z_tests(biosample_bed_sorted, fantom_bed_sorted, 'ENCODE', 'FANTOM',
+                                                    biosample_term_name,
+                                                    assembly, overlap_intervals, samples_num))
+            print(timer.elapsed())
+
+        print("Storing in stats...")
+        tests_df.reset_index(inplace=True, drop=True)
+        storage_layer.store_dataframe(tests_df, 'stats.hdf', 'encode_fantom_tests')
 
         print("Computing relative distance analysis for ENCODE and FANTOM overlaps")
         reldist_df = self.init_reldist_df()
