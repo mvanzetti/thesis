@@ -1,4 +1,4 @@
-overlap_tests = [{
+overlap_tests = {
     'fisher_jaccard': {
         'columns': ['encyclopedia', 'biosample_name', 'ovlp_encyclopedia', 'encyclopedia_size',
                     'ovlp_encyclopedia_size',
@@ -17,4 +17,4 @@ overlap_tests = [{
                     'reldist', 'ovlp_count', 'ovlp_fraction']
     }
 
-}]
+}

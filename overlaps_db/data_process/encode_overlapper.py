@@ -9,6 +9,7 @@ from pybedtools import BedTool
 
 from overlaps_db.data_process.overlapper import Overlapper
 from overlaps_db.store.hdf_store_manager import HdfStoreManager
+import overlaps_db.utils.data_process_utils as utils
 
 # TODO use this paths
 # "/Users/manuel/development/thesis/download"
@@ -22,23 +23,6 @@ class EncodeOverlapper(Overlapper):
     def __init__(self, download_path, staging_path, overlap_path, storage_path):
         super(EncodeOverlapper, self).__init__(download_path, staging_path, overlap_path, storage_path)
 
-    @staticmethod
-    def build_filtered_file_name(assembly, method):
-        encode_file_name = "filtered_"
-        if assembly:
-            encode_file_name += assembly
-        if method:
-            encode_file_name += method
-        return encode_file_name
-
-    @staticmethod
-    def build_permissive_file_name():
-        return "permissive"
-
-    @staticmethod
-    def build_bed_file_name(file_name):
-        return file_name + "_bed"
-
     def overlap_bed_files(self, bed_filepath, bed_overlap_with_filepath, min_overlap):
         bed = BedTool(bed_filepath)
         intesect_bed = BedTool(bed_overlap_with_filepath)
@@ -49,11 +33,11 @@ class EncodeOverlapper(Overlapper):
     def overlap_filtered_with_fantom_permissive(self, assembly='hg19', method=None, min_overlap=0.1, export_temp=False):
         storage_layer = HdfStoreManager(self.storage_path)
 
-        encode_file_name = self.build_filtered_file_name(assembly, method)
-        encode_file_name_bed = self.build_bed_file_name(encode_file_name)
+        encode_file_name = utils.build_filtered_file_name(assembly, method)
+        encode_file_name_bed = utils.build_bed_file_name(encode_file_name)
 
-        fantom_file_name = self.build_permissive_file_name()
-        fantom_file_name_bed = self.build_bed_file_name(fantom_file_name)
+        fantom_file_name = utils.build_permissive_file_name()
+        fantom_file_name_bed = utils.build_bed_file_name(fantom_file_name)
 
         encode_bed = storage_layer.read_bed_file('encode_staging.hdf', encode_file_name_bed)
         fantom_bed = storage_layer.read_bed_file('fantom_staging.hdf', fantom_file_name_bed)
@@ -128,7 +112,7 @@ class EncodeOverlapper(Overlapper):
         output_filename = encode_file_name + "_FANTOM_overlapped"
 
         print("Exporting overlaps file to overlaps:", output_filename,
-              " - queryable columns are [biosample_term_name, biosample_type]")
+              "- queryable columns are [biosample_term_name, biosample_type]")
 
         storage_layer.store_dataframe(overlap_full_detail_encode_df, 'encode_overlaps.hdf', output_filename,
                                       ['biosample_term_name', 'biosample_type'])
@@ -150,7 +134,7 @@ class EncodeOverlapper(Overlapper):
         print("Completed")
 
     def overlap_filtered_with_dbsuper(self, assembly='hg19', method=None, min_overlap=0.1, export_temp=False):
-        encode_file_name = self.build_filtered_file_name(assembly, method)
+        encode_file_name = utils.build_filtered_file_name(assembly, method)
 
         encode_file_path = self.staging_path + "/ENCODE/filtered/" + encode_file_name + ".csv"
         dbsuper_file_path = self.download_path + "/dbSUPER/super-enhancers-annotations.csv"
@@ -241,7 +225,7 @@ class EncodeOverlapper(Overlapper):
 
     def overlap_filtered_with_roadmap(self, assembly='hg19', method=None, min_overlap=0.1, export_temp=False,
                                       use_test=False):
-        encode_file_name = self.build_filtered_file_name(assembly, method)
+        encode_file_name = utils.build_filtered_file_name(assembly, method)
 
         encode_file_path = self.staging_path + "/ENCODE/filtered/" + encode_file_name + ".csv"
         roadmap_filepath = self.staging_path + "/EpigenomicsRoadmap/roadmap_metadata.csv"

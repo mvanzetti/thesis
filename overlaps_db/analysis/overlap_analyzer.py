@@ -9,6 +9,9 @@ import overlaps_db.constants.dataframe_info as info
 
 
 class OverlapAnalyzer:
+    def __init__(self, storage_path):
+        self.storage_path = storage_path
+
     # TODO duplicate of overlapper.py method
     def compute_size(self, row, prefix=None):
         col_name = prefix + '_name' if prefix else 'name'
@@ -62,7 +65,7 @@ class OverlapAnalyzer:
         return pd.DataFrame([row_array], columns=df_columns)
 
     @staticmethod
-    def build_shuffled_overlap(self, bed, bed_overlap_with, min_overlap, assembly, df_columns, idx):
+    def build_shuffled_overlap(bed, bed_overlap_with, min_overlap, assembly, df_columns, idx):
         random_bed = bed_overlap_with.shuffle(genome=assembly, chrom=False)
         row_array = [idx, bed.intersect(random_bed, f=min_overlap).count()]
         return pd.DataFrame([row_array], columns=df_columns)
@@ -103,35 +106,39 @@ class OverlapAnalyzer:
                                                  for i in range(0, samples_num))
         return pd.concat(df_list)
 
-    @staticmethod
+    def init_reldist_df(self):
+        columns = info.overlap_tests['reldist']['columns']
+        tests_df = pd.DataFrame(columns=columns)
+        return tests_df
+
     def compute_reldist(self, bed, bed_overlap_with, bed_name, bed_overlap_with_name, biosample_name):
         a_size = len(bed)
         b_size = len(bed_overlap_with)
 
         df_reldist = pd.DataFrame(bed.reldist(bed_overlap_with))
+        df_reldist_full = self.init_reldist_df()
 
-        df_reldist_full = pd.DataFrame(
-            columns=['encyclopedia', 'biosample_name', 'ovlp_encyclopedia', 'encyclopedia_size',
-                     'ovlp_encyclopedia_size',
-                     'reldist', 'ovlp_count', 'ovlp_fraction'])
-
+        df_reldist_full['reldist'] = df_reldist['reldist']
+        df_reldist_full['ovlp_count'] = df_reldist['count']
+        df_reldist_full['ovlp_fraction'] = df_reldist['fraction']
         df_reldist_full['encyclopedia'] = bed_name
         df_reldist_full['biosample_name'] = biosample_name
         df_reldist_full['ovlp_encyclopedia'] = bed_overlap_with_name
         df_reldist_full['encyclopedia_size'] = a_size
         df_reldist_full['ovlp_encyclopedia_size'] = b_size
-        df_reldist_full['reldist'] = df_reldist['reldist']
-        df_reldist_full['ovlp_count'] = df_reldist['count']
-        df_reldist_full['ovlp_fraction'] = df_reldist['fraction']
 
         return df_reldist_full
 
-    @staticmethod
+    def init_fisher_jaccard_tests_df(self):
+        columns = info.overlap_tests['fisher_jaccard']['columns']
+        tests_df = pd.DataFrame(columns=columns)
+        return tests_df
+
     def compute_fisher_jaccard_tests(self, bed, bed_overlap_with, bed_name, bed_overlap_with_name, biosample_name,
                                      assembly, overlap_intervals=10):
-        columns = info.overlap_tests['fisher_jaccard'].columns
 
-        tests_df = pd.DataFrame(columns=columns)
+        tests_df = self.init_fisher_jaccard_tests_df()
+        columns = tests_df.columns
 
         a_size = len(bed)
         b_size = len(bed_overlap_with)
@@ -161,12 +168,16 @@ class OverlapAnalyzer:
         tests_df.reset_index(inplace=True, drop=True)
         return tests_df
 
-    @staticmethod
+    def init_fisher_jaccard_z_tests_df(self):
+        columns = info.overlap_tests['fisher_jaccard_z']['columns']
+        tests_df = pd.DataFrame(columns=columns)
+        return tests_df
+
     def compute_fisher_jaccard_z_tests(self, bed, bed_overlap_with, bed_name, bed_overlap_with_name, biosample_name,
                                        assembly, overlap_intervals=10, samples_num=20):
-        columns = info.overlap_tests['fisher_jaccard_z'].columns
 
-        tests_df = pd.DataFrame(columns=columns)
+        tests_df = self.init_fisher_jaccard_z_tests_df()
+        columns = tests_df.columns
 
         a_size = len(bed)
         b_size = len(bed_overlap_with)

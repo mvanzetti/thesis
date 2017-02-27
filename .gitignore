@@ -10,5 +10,8 @@
 /latex/
 /storage/
 /overlaps_db/store/__pycache__/
+/overlaps_db/utils/__pycache__/
+/overlaps_db/analysis/__pycache__/
+/overlaps_db/constants/__pycache__/
 /presentation/
 /notebooks/tmp/

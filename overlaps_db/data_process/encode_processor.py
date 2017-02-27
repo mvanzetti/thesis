@@ -7,7 +7,7 @@ from pybedtools import BedTool
 from overlaps_db.data_process.processor import Processor
 from overlaps_db.store.hdf_store_manager import HdfStoreManager
 
-from utils.data_process_utils import stringify_columns
+import utils.data_process_utils as utils
 
 
 class EncodeBedProcessor(Processor):
@@ -85,7 +85,7 @@ class EncodeBedProcessor(Processor):
                         output_df.set_value(index, 'bed_filepath', file_path)
 
         print("Exporting metadata and .bed.gz file references to staging")
-        stringify_columns(output_df, ['developmental_slims', 'organ_slims', 'system_slims'])
+        utils.stringify_columns(output_df, ['developmental_slims', 'organ_slims', 'system_slims'])
         storage_layer.store_dataframe_fixed(output_df, 'encode_staging.hdf', 'encode_metadata')
         # output_df.to_csv(file_list_output_name, sep='\t')
         print("Completed")
@@ -139,15 +139,11 @@ class EncodeBedProcessor(Processor):
         annotation_df = storage_layer.read_dataframe('encode_staging.hdf', 'encode_metadata')
         annotation_df.reset_index(inplace=True, drop=True)
 
-        filter_file_name = "filtered_"
+        filter_file_name = utils.build_filtered_file_name(assembly, method)
 
         if assembly:
-            print("Filtering by assembly", assembly)
-            filter_file_name += assembly
             annotation_df = annotation_df.query('assembly==@assembly')
         if method:
-            print("Filtering by method", method)
-            filter_file_name += method
             annotation_df = annotation_df.query('method==@method')
 
         print(len(annotation_df), "experiments found")
@@ -166,6 +162,17 @@ class EncodeBedProcessor(Processor):
                     continue
 
                 bed_df = self.process_bed_file(index, annotation_df)
+                biosample_bed_filename = utils.build_bed_file_name(
+                    utils.build_biosample_file_name(row['biosample_term_id'], assembly, method))
+
+                print("Exporting single biosample filtered file in bed format"
+                      " (substituting names with candidate_ids) to staging:", biosample_bed_filename)
+
+                biosample_bed_df = bed_df.copy()
+                biosample_bed_df['name'] = biosample_bed_df['candidate_id']
+                biosample_bed_df = biosample_bed_df[['chrom', 'start', 'end', 'name', 'score', 'strand']]
+                storage_layer.store_dataframe_fixed(biosample_bed_df, 'encode_staging.hdf', biosample_bed_filename)
+
                 full_bed_df = full_bed_df.append(bed_df)
 
             except ValueError as e:
@@ -183,7 +190,7 @@ class EncodeBedProcessor(Processor):
         # output_bed_filename = self.staging_path + "/filtered/" + filter_file_name + ".bed"
 
         print("Exporting filtered file to staging:", filter_file_name,
-              " - queryable columns are [biosample_term_name, biosample_type]")
+              "- queryable columns are [biosample_term_name, biosample_type]")
         storage_layer.store_dataframe(full_bed_df, 'encode_staging.hdf', filter_file_name,
                                       ['biosample_term_name', 'biosample_type'])
         # full_bed_df.to_csv(output_filename, index=None, sep='\t')
