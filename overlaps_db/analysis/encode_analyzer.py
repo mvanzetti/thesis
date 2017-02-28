@@ -18,6 +18,9 @@ class EncodeAnalyzer(OverlapAnalyzer):
         fantom_bed = storage_layer.read_bed_file('fantom_staging.hdf', fantom_file_name_bed)
         fantom_bed_sorted = fantom_bed.sort()
 
+        random_fantom_bed = self.build_random_from_bed(fantom_bed, assembly)
+        shuffled_fantom_bed = self.build_shuffled_from_bed(fantom_bed, assembly)
+
         annotation_df = storage_layer.read_dataframe('encode_staging.hdf', 'encode_metadata')
         annotation_df.reset_index(inplace=True, drop=True)
         if assembly:
@@ -49,11 +52,48 @@ class EncodeAnalyzer(OverlapAnalyzer):
                 self.compute_fisher_jaccard_z_tests(biosample_bed_sorted, fantom_bed_sorted, 'ENCODE', 'FANTOM',
                                                     biosample_term_name,
                                                     assembly, overlap_intervals, samples_num))
+
+            tests_random_df = self.compute_fisher_jaccard_tests(biosample_bed_sorted, random_fantom_bed, 'ENCODE',
+                                                                'RANDOM', biosample_term_name, assembly,
+                                                                overlap_intervals)
+
+            tests_shuffled_df = self.compute_fisher_jaccard_tests(biosample_bed_sorted, shuffled_fantom_bed, 'ENCODE',
+                                                                  'SHUFFLED', biosample_term_name, assembly,
+                                                                  overlap_intervals)
+
+            tests_df = tests_df.append(tests_random_df)
+            tests_df = tests_df.append(tests_shuffled_df)
+
             print(timer.elapsed())
 
         print("Storing in stats...")
         tests_df.reset_index(inplace=True, drop=True)
         storage_layer.store_dataframe(tests_df, 'stats.hdf', 'encode_fantom_tests')
+
+        print("Completed")
+
+    def perform_reldist_analsys_with_fantom_permissive(self, assembly='hg19', method=None, biosample_type=None):
+
+        storage_layer = HdfStoreManager(self.storage_path)
+
+        fantom_file_name = utils.build_permissive_file_name()
+        fantom_file_name_bed = utils.build_bed_file_name(fantom_file_name)
+        fantom_bed = storage_layer.read_bed_file('fantom_staging.hdf', fantom_file_name_bed)
+        fantom_bed_sorted = fantom_bed.sort()
+
+        random_fantom_bed = self.build_random_from_bed(fantom_bed, assembly)
+        shuffled_fantom_bed = self.build_shuffled_from_bed(fantom_bed, assembly)
+
+        annotation_df = storage_layer.read_dataframe('encode_staging.hdf', 'encode_metadata')
+        annotation_df.reset_index(inplace=True, drop=True)
+        if assembly:
+            annotation_df = annotation_df.query('assembly==@assembly')
+        if method:
+            annotation_df = annotation_df.query('method==@method')
+        if biosample_type:
+            annotation_df = annotation_df.query('biosample_type==@biosample_type')
+
+        print(len(annotation_df), "experiments found")
 
         print("Computing relative distance analysis for ENCODE and FANTOM overlaps")
         reldist_df = self.init_reldist_df()
@@ -71,10 +111,21 @@ class EncodeAnalyzer(OverlapAnalyzer):
             biosample_bed_sorted = biosample_bed.sort()
 
             reldist_df = reldist_df.append(
-                self.compute_reldist(biosample_bed_sorted, fantom_bed_sorted, 'ENCODE', 'FANTOM', biosample_term_name)
+                self.compute_reldist(biosample_bed_sorted, fantom_bed_sorted, 'ENCODE', 'FANTOM',
+                                     biosample_term_name)
             )
+
+            reldist_df = reldist_df.append(
+                self.compute_reldist(biosample_bed_sorted, random_fantom_bed, 'ENCODE', 'RANDOM',
+                                     biosample_term_name)
+            )
+
+            reldist_df = reldist_df.append(
+                self.compute_reldist(biosample_bed_sorted, shuffled_fantom_bed, 'ENCODE', 'SHUFFLED',
+                                     biosample_term_name)
+            )
+
             print(timer.elapsed())
 
         reldist_df.reset_index(inplace=True, drop=True)
         storage_layer.store_dataframe(reldist_df, 'stats.hdf', 'encode_fantom_reldist')
-        print("Completed")

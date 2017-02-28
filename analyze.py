@@ -17,14 +17,21 @@ def main(args):
 
         if args.target == 'FANTOM':
             log.info("Overlapping with FANTOM")
-            analyzer.perform_overlap_analysis_with_fantom_permissive(assembly=args.assembly, method=args.method,
-                                                                     overlap_intervals=args.overlap_intervals,
-                                                                     samples_num=args.samples_num,
-                                                                     biosample_type=args.biosample_type)
+
+            if args.analysis == 'overlap':
+                analyzer.perform_overlap_analysis_with_fantom_permissive(assembly=args.assembly, method=args.method,
+                                                                         overlap_intervals=args.overlap_intervals,
+                                                                         samples_num=args.samples_num,
+                                                                         biosample_type=args.biosample_type)
+
+            if args.analysis == 'reldist':
+                analyzer.perform_reldist_analsys_with_fantom_permissive(assembly=args.assembly, method=args.method,
+                                                                        biosample_type=args.biosample_type)
+
         else:
             print("The selected target is not available")
 
-        log.info("Overlapping analysis completed")
+        log.info("%s analysis completed", args.analysis)
     else:
         print("selected source not implemented yet")
 
@@ -40,6 +47,9 @@ if __name__ == '__main__':
     parser.add_argument("target",
                         help='Select the target to consider for the overlap analysis',
                         choices=['FANTOM', 'dbSUPER', 'ROADMAP'])
+    parser.add_argument("--analysis",
+                        help='Select the kind of analysis you want to perform', action="store", dest="analysis",
+                        choices=['overlap', 'reldist'])
     parser.add_argument('--assembly', action="store", dest="assembly",
                         help='The assembly to use to build the overlaps files. \
                         For the human genome assembly, type hg19.',
@@ -51,12 +61,13 @@ if __name__ == '__main__':
                         help='If specified, consider a specific biosample type')
     parser.add_argument('--intervals', action="store", dest="overlap_intervals",
                         help='The number of intervals to split the min overlap requested for the overlapping tests',
-                        default=10)
+                        type=int, default=10)
     parser.add_argument('--samples', action="store", dest="samples_num",
-                        help='The number of samples to consider while building random null models', default=20)
+                        help='The number of samples to consider while building random null models', type=int,
+                        default=20)
 
     received_args = parser.parse_args()
-    log.info("Performing analysis for %s and %s", received_args.source, received_args.target)
+    log.info("Performing %s analysis for %s and %s", received_args.analysis, received_args.source, received_args.target)
     log.info("Optional parameters: Assembly: %s, Method: %s, Intervals: %d, Samples: %d", received_args.assembly,
              received_args.method, received_args.overlap_intervals, received_args.samples_num)
 

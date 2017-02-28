@@ -70,6 +70,17 @@ class OverlapAnalyzer:
         row_array = [idx, bed.intersect(random_bed, f=min_overlap).count()]
         return pd.DataFrame([row_array], columns=df_columns)
 
+    def build_random_from_bed(self, bed, assembly):
+        empty_bed = BedTool()
+        random_bed = empty_bed.random(l=self.mean_size(bed), n=len(bed), genome=assembly)
+        random_bed_sorted = random_bed.sort()
+        return random_bed_sorted
+
+    def build_shuffled_from_bed(self, bed, assembly):
+        shuffled_bed = bed.shuffle(genome=assembly, chrom=False)
+        shuffled_bed_sorted = shuffled_bed.sort()
+        return shuffled_bed_sorted
+
     def create_random_overlap_distribution(self, bed, bed_overlap_with, assembly, min_overlap, samples_num,
                                            strategy='random'):
         intervals_size = self.mean_size(bed_overlap_with)
