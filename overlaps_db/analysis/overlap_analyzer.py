@@ -122,7 +122,7 @@ class OverlapAnalyzer:
         tests_df = pd.DataFrame(columns=columns)
         return tests_df
 
-    def compute_reldist(self, bed, bed_overlap_with, bed_name, bed_overlap_with_name, biosample_name):
+    def compute_reldist(self, bed, bed_overlap_with, bed_name, bed_overlap_with_name, biosample_type, biosample_name):
         a_size = len(bed)
         b_size = len(bed_overlap_with)
 
@@ -133,6 +133,7 @@ class OverlapAnalyzer:
         df_reldist_full['ovlp_count'] = df_reldist['count']
         df_reldist_full['ovlp_fraction'] = df_reldist['fraction']
         df_reldist_full['encyclopedia'] = bed_name
+        df_reldist_full['biosample_type'] = biosample_type
         df_reldist_full['biosample_name'] = biosample_name
         df_reldist_full['ovlp_encyclopedia'] = bed_overlap_with_name
         df_reldist_full['encyclopedia_size'] = a_size
@@ -145,8 +146,8 @@ class OverlapAnalyzer:
         tests_df = pd.DataFrame(columns=columns)
         return tests_df
 
-    def compute_fisher_jaccard_tests(self, bed, bed_overlap_with, bed_name, bed_overlap_with_name, biosample_name,
-                                     assembly, overlap_intervals=10):
+    def compute_fisher_jaccard_tests(self, bed, bed_overlap_with, bed_name, bed_overlap_with_name, biosample_type,
+                                     biosample_name, assembly, overlap_intervals=10):
 
         tests_df = self.init_fisher_jaccard_tests_df()
         columns = tests_df.columns
@@ -169,7 +170,7 @@ class OverlapAnalyzer:
             jaccard = bed.jaccard(bed_overlap_with, f=min_ovlp)
             jaccard_index = jaccard['jaccard']
 
-            row_array = [bed_name, biosample_name, bed_overlap_with_name, a_size, b_size,
+            row_array = [bed_name, biosample_type, biosample_name, bed_overlap_with_name, a_size, b_size,
                          min_ovlp, overlaps_count, left_tail_fisher_pvalue, right_tail_fisher_pvalue,
                          two_tail_fisher_pvalue, oddsratio_fisher, jaccard_index]
 
@@ -184,8 +185,8 @@ class OverlapAnalyzer:
         tests_df = pd.DataFrame(columns=columns)
         return tests_df
 
-    def compute_fisher_jaccard_z_tests(self, bed, bed_overlap_with, bed_name, bed_overlap_with_name, biosample_name,
-                                       assembly, overlap_intervals=10, samples_num=20):
+    def compute_fisher_jaccard_z_tests(self, bed, bed_overlap_with, bed_name, bed_overlap_with_name, biosample_type,
+                                       biosample_name, assembly, overlap_intervals=10, samples_num=20):
 
         tests_df = self.init_fisher_jaccard_z_tests_df()
         columns = tests_df.columns
@@ -219,7 +220,7 @@ class OverlapAnalyzer:
             z_random = (overlaps_count - random_mean_count) / random_std
             z_shuffled = (overlaps_count - shuffled_mean_count) / shuffled_std
 
-            row_array = [bed_name, biosample_name, bed_overlap_with_name, a_size, b_size,
+            row_array = [bed_name, biosample_type, biosample_name, bed_overlap_with_name, a_size, b_size,
                          min_ovlp, overlaps_count, z_random, z_shuffled, right_tail_fisher_pvalue, jaccard_index]
 
             temp_df = pd.DataFrame([row_array], columns=columns)

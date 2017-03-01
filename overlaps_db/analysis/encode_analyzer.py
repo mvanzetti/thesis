@@ -22,13 +22,20 @@ class EncodeAnalyzer(OverlapAnalyzer):
         shuffled_fantom_bed = self.build_shuffled_from_bed(fantom_bed, assembly)
 
         annotation_df = storage_layer.read_dataframe('encode_staging.hdf', 'encode_metadata')
+        annotation_df.drop_duplicates(inplace=True)
         annotation_df.reset_index(inplace=True, drop=True)
+
+        table_name = "overlap"
+
         if assembly:
             annotation_df = annotation_df.query('assembly==@assembly')
+            table_name += "_" + assembly
         if method:
             annotation_df = annotation_df.query('method==@method')
+            table_name += "_" + method
         if biosample_type:
             annotation_df = annotation_df.query('biosample_type==@biosample_type')
+            table_name += "_" + biosample_type.replace(" ", "_")
 
         print(len(annotation_df), "experiments found")
 
@@ -37,6 +44,7 @@ class EncodeAnalyzer(OverlapAnalyzer):
         tests_df = self.init_fisher_jaccard_z_tests_df()
 
         for index, row in annotation_df.iterrows():
+            bio_type = row['biosample_type']
             biosample_term_id = row['biosample_term_id']
             biosample_term_name = row['biosample_term_name']
 
@@ -50,15 +58,15 @@ class EncodeAnalyzer(OverlapAnalyzer):
 
             tests_df = tests_df.append(
                 self.compute_fisher_jaccard_z_tests(biosample_bed_sorted, fantom_bed_sorted, 'ENCODE', 'FANTOM',
-                                                    biosample_term_name,
+                                                    bio_type, biosample_term_name,
                                                     assembly, overlap_intervals, samples_num))
 
             tests_random_df = self.compute_fisher_jaccard_tests(biosample_bed_sorted, random_fantom_bed, 'ENCODE',
-                                                                'RANDOM', biosample_term_name, assembly,
+                                                                'RANDOM', bio_type, biosample_term_name, assembly,
                                                                 overlap_intervals)
 
             tests_shuffled_df = self.compute_fisher_jaccard_tests(biosample_bed_sorted, shuffled_fantom_bed, 'ENCODE',
-                                                                  'SHUFFLED', biosample_term_name, assembly,
+                                                                  'SHUFFLED', bio_type, biosample_term_name, assembly,
                                                                   overlap_intervals)
 
             tests_df = tests_df.append(tests_random_df)
@@ -68,7 +76,9 @@ class EncodeAnalyzer(OverlapAnalyzer):
 
         print("Storing in stats...")
         tests_df.reset_index(inplace=True, drop=True)
-        storage_layer.store_dataframe(tests_df, 'stats.hdf', 'encode_fantom_tests')
+
+        storage_layer.store_dataframe(tests_df, 'encode_fantom_stats.hdf', table_name,
+                                      queryable_cols=['biosample_name'])
 
         print("Completed")
 
@@ -85,13 +95,20 @@ class EncodeAnalyzer(OverlapAnalyzer):
         shuffled_fantom_bed = self.build_shuffled_from_bed(fantom_bed, assembly)
 
         annotation_df = storage_layer.read_dataframe('encode_staging.hdf', 'encode_metadata')
+        annotation_df.drop_duplicates(inplace=True)
         annotation_df.reset_index(inplace=True, drop=True)
+
+        table_name = "reldist"
+
         if assembly:
             annotation_df = annotation_df.query('assembly==@assembly')
+            table_name += "_" + assembly
         if method:
             annotation_df = annotation_df.query('method==@method')
+            table_name += "_" + method
         if biosample_type:
             annotation_df = annotation_df.query('biosample_type==@biosample_type')
+            table_name += "_" + biosample_type.replace(" ", "_")
 
         print(len(annotation_df), "experiments found")
 
@@ -99,6 +116,7 @@ class EncodeAnalyzer(OverlapAnalyzer):
         reldist_df = self.init_reldist_df()
 
         for index, row in annotation_df.iterrows():
+            bio_type = row['biosample_type']
             biosample_term_id = row['biosample_term_id']
             biosample_term_name = row['biosample_term_name']
 
@@ -110,22 +128,26 @@ class EncodeAnalyzer(OverlapAnalyzer):
             biosample_bed = storage_layer.read_bed_file('encode_staging.hdf', biosample_bed_name)
             biosample_bed_sorted = biosample_bed.sort()
 
-            reldist_df = reldist_df.append(
-                self.compute_reldist(biosample_bed_sorted, fantom_bed_sorted, 'ENCODE', 'FANTOM',
-                                     biosample_term_name)
-            )
+            try:
+                reldist_df = reldist_df.append(
+                    self.compute_reldist(biosample_bed_sorted, fantom_bed_sorted, 'ENCODE', 'FANTOM', bio_type,
+                                         biosample_term_name)
+                )
 
-            reldist_df = reldist_df.append(
-                self.compute_reldist(biosample_bed_sorted, random_fantom_bed, 'ENCODE', 'RANDOM',
-                                     biosample_term_name)
-            )
+                reldist_df = reldist_df.append(
+                    self.compute_reldist(biosample_bed_sorted, random_fantom_bed, 'ENCODE', 'RANDOM', bio_type,
+                                         biosample_term_name)
+                )
 
-            reldist_df = reldist_df.append(
-                self.compute_reldist(biosample_bed_sorted, shuffled_fantom_bed, 'ENCODE', 'SHUFFLED',
-                                     biosample_term_name)
-            )
+                reldist_df = reldist_df.append(
+                    self.compute_reldist(biosample_bed_sorted, shuffled_fantom_bed, 'ENCODE', 'SHUFFLED', bio_type,
+                                         biosample_term_name)
+                )
+            except:
+                print("Error")
 
             print(timer.elapsed())
 
         reldist_df.reset_index(inplace=True, drop=True)
-        storage_layer.store_dataframe(reldist_df, 'stats.hdf', 'encode_fantom_reldist')
+        storage_layer.store_dataframe(reldist_df, 'encode_fantom_stats.hdf', table_name,
+                                      queryable_cols=['biosample_name'])

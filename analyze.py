@@ -68,8 +68,11 @@ if __name__ == '__main__':
 
     received_args = parser.parse_args()
     log.info("Performing %s analysis for %s and %s", received_args.analysis, received_args.source, received_args.target)
-    log.info("Optional parameters: Assembly: %s, Method: %s, Intervals: %d, Samples: %d", received_args.assembly,
-             received_args.method, received_args.overlap_intervals, received_args.samples_num)
+    log.info("Optional parameters: Assembly: %s, Method: %s", received_args.assembly,
+             received_args.method, )
+
+    if received_args.analysis == 'overlap':
+        print("Intervals: %d, Samples: %d", received_args.overlap_intervals, received_args.samples_num)
 
     if received_args.biosample_type:
         log.info("Consider only %s", received_args.biosample_type)

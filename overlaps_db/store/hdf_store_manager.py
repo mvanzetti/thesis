@@ -31,13 +31,13 @@ class HdfStoreManager:
 
         df.to_hdf(store_name, table_name, mode='a', format='table', data_columns=queryable_cols)
 
-    def store_dataframe(self, df, store_name, table_name, queryable_cols=None):
+    def store_dataframe(self, df, store_name, table_name, queryable_cols=None, append=False):
         store_name = self.storage_path + "/" + store_name
-        df.to_hdf(store_name, table_name, mode='a', format='table', data_columns=queryable_cols)
+        df.to_hdf(store_name, table_name, mode='a', format='table', data_columns=queryable_cols, append=append)
 
-    def store_dataframe_fixed(self, df, store_name, table_name):
+    def store_dataframe_fixed(self, df, store_name, table_name, append=False):
         store_name = self.storage_path + "/" + store_name
-        df.to_hdf(store_name, table_name, mode='a', format='fixed')
+        df.to_hdf(store_name, table_name, mode='a', format='fixed', append=append)
 
     def store_bed_file(self, bed, store_name, bed_name):
         store_name = self.storage_path + "/" + store_name
