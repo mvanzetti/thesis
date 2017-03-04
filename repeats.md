@@ -61,6 +61,29 @@ An asterisk (*) in the final column (no example shown) indicates that there is a
 
 Note that the SW score and divergence numbers for the three Tigger1 lines are identical. This is because the information is derived from a single alignment (the Alus were deleted from the query before the alignment with the Tigger element was performed). The program makes educated guesses about many fragments if they are derived from the same element (e.g. it knows that the MER7A fragments represent one insert). In a next version I can identify each element with a unique ID, if interest exists (this could help to represent repeats cleaner in graphic displays). 
 
+## Processing
+From the assembly chromosome naming scheme we know that in addition to the "regular" chromosomes, the hg19 browser contains nine haplotype chromosomes, 39 unplaced contigs, and 20 unlocalized contigs. For unlocalized contigs, the contig name is appended to the regular chromosome name, as in `chr1_gl000191_random`. If the chromosome is unknown, the contig is represented with the name "chrUn" followed by the contig identifier, as in `chrUn_gl000211`. Note that the chrUn contigs are no longer placed in a single, artificial chromosome as they have been in previous UCSC assemblies.
+
+The processing removes all the annotations resulting from unplaced or unlocalized sequences on reference chromosomes
+
+- The `chr*_random` sequences are unplaced sequence on those reference
+chromosomes.
+
+- The `chrUn_*` sequences are unlocalized sequences where the corresponding
+reference chromosome has not been determined.
+
+
+Then the full dataset is divided by repeat class family obtaining 66 different samples, for example:
+
+- Satellite/telo
+- LINE/L1
+- DNA/hAT-Charlie
+- SINE/MIR
+- LINE/L2
+- LINE/CR1
+-  ...
+
+
 
 <a name="bib"/>
 ## Bibliography
