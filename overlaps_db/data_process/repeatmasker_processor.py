@@ -12,7 +12,7 @@ class RepeatMaskerProcessor(Processor):
         subfolder = "/RepeatMasker"
         super(RepeatMaskerProcessor, self).__init__(download_path + subfolder, staging_path + subfolder, storage_path)
 
-    def process(self, assembly="hg19"):
+    def process(self, assembly='hg19'):
         storage_layer = HdfStoreManager(self.storage_path)
 
         filename = assembly + ".fa.out"
@@ -63,7 +63,7 @@ class RepeatMaskerProcessor(Processor):
             bed_df.score = class_df.SW_score
             bed_df.strand = "."
 
-            table_name = class_name.replace('/', '_').replace('?', '_qm').replace('-', '_')
+            table_name = utils.build_repeatmasker_file_name(class_name)
             storage_layer.store_dataframe_fixed(class_df, 'repeatmasker_staging.hdf', table_name)
 
             bed = BedTool.from_dataframe(bed_df)

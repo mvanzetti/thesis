@@ -28,6 +28,21 @@ def main(args):
                 analyzer.perform_reldist_analsys_with_fantom_permissive(assembly=args.assembly, method=args.method,
                                                                         biosample_type=args.biosample_type)
 
+        elif args.target == 'RepeatMasker':
+            log.info("Overlapping with RepeatMasker")
+
+            if args.analysis == 'overlap':
+                analyzer.perform_overlap_analysis_with_repeatmasker(assembly=args.assembly, method=args.method,
+                                                                    overlap_intervals=args.overlap_intervals,
+                                                                    samples_num=args.samples_num,
+                                                                    biosample_type=args.biosample_type,
+                                                                    repeat_class=args.repeat_class)
+
+            if args.analysis == 'reldist':
+                analyzer.perform_reldist_analsys_with_repeatmasker(assembly=args.assembly, method=args.method,
+                                                                   biosample_type=args.biosample_type,
+                                                                   repeat_class=args.repeat_class)
+
         else:
             print("The selected target is not available")
 
@@ -46,7 +61,7 @@ if __name__ == '__main__':
                         choices=['ENCODE', 'FANTOM', 'ENCODE_FANTOM'])
     parser.add_argument("target",
                         help='Select the target to consider for the overlap analysis',
-                        choices=['FANTOM', 'dbSUPER', 'ROADMAP'])
+                        choices=['FANTOM', 'RepeatMasker'])
     parser.add_argument("--analysis",
                         help='Select the kind of analysis you want to perform', action="store", dest="analysis",
                         choices=['overlap', 'reldist'])
@@ -59,6 +74,8 @@ if __name__ == '__main__':
                         default='DNase_H3K27ac')
     parser.add_argument('--type', action="store", dest="biosample_type",
                         help='If specified, consider a specific biosample type')
+    parser.add_argument('--repeat_class', action="store", dest="repeat_class",
+                        help='If target is RepeatMasker, please specify a repeat class family (e.g.: "SINE/Alu")')
     parser.add_argument('--intervals', action="store", dest="overlap_intervals",
                         help='The number of intervals to split the min overlap requested for the overlapping tests',
                         type=int, default=10)
@@ -76,5 +93,12 @@ if __name__ == '__main__':
 
     if received_args.biosample_type:
         log.info("Consider only %s", received_args.biosample_type)
+
+    if received_args.target == 'RepeatMasker':
+        if not received_args.repeat_class:
+            log.error("Please specify a valid repeat class")
+            sys.exit()
+
+        log.info("Consider repeat class %s", received_args.repeat_class)
 
     sys.exit(main(received_args))

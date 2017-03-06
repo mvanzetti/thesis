@@ -186,7 +186,7 @@ class OverlapAnalyzer:
         return tests_df
 
     def compute_fisher_jaccard_z_tests(self, bed, bed_overlap_with, bed_name, bed_overlap_with_name, biosample_type,
-                                       biosample_name, assembly, overlap_intervals=10, samples_num=20):
+                                       biosample_name, assembly, overlap_intervals=10, samples_num=20, avoid_z=False):
 
         tests_df = self.init_fisher_jaccard_z_tests_df()
         columns = tests_df.columns
@@ -207,18 +207,23 @@ class OverlapAnalyzer:
             jaccard_index = jaccard['jaccard']
 
             # z test
-            runs_shuffled_df = self.create_random_overlap_distribution_parallelized(bed, bed_overlap_with, assembly,
-                                                                                    min_ovlp, samples_num, 'shuffle')
-            runs_random_df = self.create_random_overlap_distribution_parallelized(bed, bed_overlap_with, assembly,
-                                                                                  min_ovlp, samples_num)
+            if avoid_z:
+                z_random = 0
+                z_shuffled = 0
+            else:
+                runs_shuffled_df = self.create_random_overlap_distribution_parallelized(bed, bed_overlap_with, assembly,
+                                                                                        min_ovlp, samples_num,
+                                                                                        'shuffle')
+                runs_random_df = self.create_random_overlap_distribution_parallelized(bed, bed_overlap_with, assembly,
+                                                                                      min_ovlp, samples_num)
 
-            random_mean_count = float(runs_random_df[['size']].mean())
-            random_std = float(runs_random_df[['size']].std())
-            shuffled_mean_count = float(runs_shuffled_df[['size']].mean())
-            shuffled_std = float(runs_shuffled_df[['size']].std())
+                random_mean_count = float(runs_random_df[['size']].mean())
+                random_std = float(runs_random_df[['size']].std())
+                shuffled_mean_count = float(runs_shuffled_df[['size']].mean())
+                shuffled_std = float(runs_shuffled_df[['size']].std())
 
-            z_random = (overlaps_count - random_mean_count) / random_std
-            z_shuffled = (overlaps_count - shuffled_mean_count) / shuffled_std
+                z_random = (overlaps_count - random_mean_count) / random_std
+                z_shuffled = (overlaps_count - shuffled_mean_count) / shuffled_std
 
             row_array = [bed_name, biosample_type, biosample_name, bed_overlap_with_name, a_size, b_size,
                          min_ovlp, overlaps_count, z_random, z_shuffled, right_tail_fisher_pvalue, jaccard_index]

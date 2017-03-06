@@ -83,7 +83,13 @@ Then the full dataset is divided by repeat class family obtaining 66 different s
 - LINE/CR1
 -  ...
 
+## No enough overlaps, moving to closeness
+The overlap analysis tool built is not able to find evidences of an enrichment of transposable elements inside enhancers. 
+Roughly speaking, results are less than random overlap results.
 
+The new need is to build a set of analyses considering the closeness of sequences. Qualitatively, both MIR and Alu elements are found to be enriched in some ENCODE samples (eg: neuronal stem cell) respect to random sequences. There is in fact an indication of an enrichment of repeated sequences within a +- 10 kb range around the inferred center (end-start)/2 of ENCODE enhancer candidates. 
+
+It is important now to focus on the development of a null-model based approached able to measure z values based on closeness-related features and then perform the analyses on Encode-only, FANTOM-only and then "Encode and FANTOM" enhancers list.
 
 <a name="bib"/>
 ## Bibliography

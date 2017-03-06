@@ -7,7 +7,7 @@ cd ..
 echo ------ Computing Relative Distances
 #./analyze.py ENCODE FANTOM --type "tissue" --analysis reldist
 #echo
-#./analyze.py ENCODE FANTOM --type "stem cell" --analysis reldist
+./analyze.py ENCODE FANTOM --type "stem cell" --analysis reldist
 #echo
 #./analyze.py ENCODE FANTOM --type "primary cell" --analysis reldist
 #echo

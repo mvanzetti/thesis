@@ -30,6 +30,10 @@ def build_permissive_file_name():
     return "permissive"
 
 
+def build_repeatmasker_file_name(repeat_class):
+    return repeat_class.replace('/', '_').replace('?', '_qm').replace('-', '_')
+
+
 def build_bed_file_name(file_name):
     return file_name + "_bed"
 
