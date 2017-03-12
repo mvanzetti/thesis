@@ -142,25 +142,25 @@ class EncodeAnalyzer(OverlapAnalyzer):
 
         return reldist_df, table_name
 
-    def perform_overlap_analysis_with_repeatmasker(self, assembly='hg19', method=None, overlap_intervals=10,
-                                                   samples_num=20, biosample_type=None, repeat_class=None):
-
-        storage_layer = HdfStoreManager(self.storage_path)
-
-        repeat_class_file_name = utils.build_repeatmasker_file_name(repeat_class)
-        repeat_class_file_name_bed = utils.build_bed_file_name(repeat_class_file_name)
-        repeat_bed = storage_layer.read_bed_file('repeatmasker_staging.hdf', repeat_class_file_name_bed)
-
-        tests_df, table_name = self.perform_overlap_analysis_with(repeat_bed, repeat_class_file_name, assembly, method,
-                                                                  overlap_intervals, samples_num, biosample_type,
-                                                                  avoid_z_test=True)
-        print("Storing in stats...")
-        tests_df.reset_index(inplace=True, drop=True)
-
-        storage_layer.store_dataframe(tests_df, 'encode_repeatmasker_stats.hdf', table_name,
-                                      queryable_cols=['biosample_name'])
-
-        print("Completed")
+    # def perform_overlap_analysis_with_repeatmasker(self, assembly='hg19', method=None, overlap_intervals=10,
+    #                                                samples_num=20, biosample_type=None, repeat_class=None):
+    #
+    #     storage_layer = HdfStoreManager(self.storage_path)
+    #
+    #     repeat_class_file_name = utils.build_repeatmasker_file_name(repeat_class)
+    #     repeat_class_file_name_bed = utils.build_bed_file_name(repeat_class_file_name)
+    #     repeat_bed = storage_layer.read_bed_file('repeatmasker_staging.hdf', repeat_class_file_name_bed)
+    #
+    #     tests_df, table_name = self.perform_overlap_analysis_with(repeat_bed, repeat_class_file_name, assembly, method,
+    #                                                               overlap_intervals, samples_num, biosample_type,
+    #                                                               avoid_z_test=True)
+    #     print("Storing in stats...")
+    #     tests_df.reset_index(inplace=True, drop=True)
+    #
+    #     storage_layer.store_dataframe(tests_df, 'encode_repeatmasker_stats.hdf', table_name,
+    #                                   queryable_cols=['biosample_name'])
+    #
+    #     print("Completed")
 
     def perform_overlap_analysis_with_fantom_permissive(self, assembly='hg19', method=None, overlap_intervals=10,
                                                         samples_num=20, biosample_type=None):
@@ -172,64 +172,6 @@ class EncodeAnalyzer(OverlapAnalyzer):
 
         tests_df, table_name = self.perform_overlap_analysis_with(fantom_bed, fantom_file_name, assembly, method,
                                                                   overlap_intervals, samples_num, biosample_type)
-        # fantom_bed_sorted = fantom_bed.sort()
-        #
-        # random_fantom_bed = self.build_random_from_bed(fantom_bed, assembly)
-        # shuffled_fantom_bed = self.build_shuffled_from_bed(fantom_bed, assembly)
-        #
-        # annotation_df = storage_layer.read_dataframe('encode_staging.hdf', 'encode_metadata')
-        # annotation_df.drop_duplicates(inplace=True)
-        # annotation_df.reset_index(inplace=True, drop=True)
-        #
-        # table_name = "overlap"
-        #
-        # if assembly:
-        #     annotation_df = annotation_df.query('assembly==@assembly')
-        #     table_name += "_" + assembly
-        # if method:
-        #     annotation_df = annotation_df.query('method==@method')
-        #     table_name += "_" + method
-        # if biosample_type:
-        #     annotation_df = annotation_df.query('biosample_type==@biosample_type')
-        #     table_name += "_" + biosample_type.replace(" ", "_")
-        #
-        # print(len(annotation_df), "experiments found")
-        #
-        # print("Computing fisher test, jaccard index for ENCODE and FANTOM overlaps,"
-        #       " and z tests over random and shuffled null models...")
-        # tests_df = self.init_fisher_jaccard_z_tests_df()
-        #
-        # for index, row in annotation_df.iterrows():
-        #     bio_type = row['biosample_type']
-        #     biosample_term_id = row['biosample_term_id']
-        #     biosample_term_name = row['biosample_term_name']
-        #
-        #     print("Processing", biosample_term_name)
-        #     timer = Timer()
-        #     timer.start()
-        #
-        #     biosample_bed_name = utils.build_biosample_bed_file_name(biosample_term_id, assembly, method)
-        #     biosample_bed = storage_layer.read_bed_file('encode_staging.hdf', biosample_bed_name)
-        #     biosample_bed_sorted = biosample_bed.sort()
-        #
-        #     tests_df = tests_df.append(
-        #         self.compute_fisher_jaccard_z_tests(biosample_bed_sorted, fantom_bed_sorted, 'ENCODE', 'FANTOM',
-        #                                             bio_type, biosample_term_name,
-        #                                             assembly, overlap_intervals, samples_num))
-        #
-        #     tests_random_df = self.compute_fisher_jaccard_tests(biosample_bed_sorted, random_fantom_bed, 'ENCODE',
-        #                                                         'RANDOM', bio_type, biosample_term_name, assembly,
-        #                                                         overlap_intervals)
-        #
-        #     tests_shuffled_df = self.compute_fisher_jaccard_tests(biosample_bed_sorted, shuffled_fantom_bed, 'ENCODE',
-        #                                                           'SHUFFLED', bio_type, biosample_term_name, assembly,
-        #                                                           overlap_intervals)
-        #
-        #     tests_df = tests_df.append(tests_random_df)
-        #     tests_df = tests_df.append(tests_shuffled_df)
-        #
-        #     print(timer.elapsed())
-
         print("Storing in stats...")
         tests_df.reset_index(inplace=True, drop=True)
 
@@ -238,25 +180,25 @@ class EncodeAnalyzer(OverlapAnalyzer):
 
         print("Completed")
 
-    def perform_reldist_analsys_with_repeatmasker(self, assembly='hg19', method=None, biosample_type=None,
-                                                  repeat_class=None):
-
-        storage_layer = HdfStoreManager(self.storage_path)
-
-        repeat_class_file_name = utils.build_repeatmasker_file_name(repeat_class)
-        repeat_class_file_name_bed = utils.build_bed_file_name(repeat_class_file_name)
-        repeat_bed = storage_layer.read_bed_file('repeatmasker_staging.hdf', repeat_class_file_name_bed)
-
-        reldist_df, table_name = self.perform_reldist_analsys_with(repeat_bed, repeat_class_file_name, assembly, method,
-                                                                   biosample_type)
-
-        print("Storing in stats...")
-        reldist_df.reset_index(inplace=True, drop=True)
-
-        storage_layer.store_dataframe(reldist_df, 'encode_repeatmasker_stats.hdf', table_name,
-                                      queryable_cols=['biosample_name'])
-
-        print("Completed")
+    # def perform_reldist_analsys_with_repeatmasker(self, assembly='hg19', method=None, biosample_type=None,
+    #                                               repeat_class=None):
+    #
+    #     storage_layer = HdfStoreManager(self.storage_path)
+    #
+    #     repeat_class_file_name = utils.build_repeatmasker_file_name(repeat_class)
+    #     repeat_class_file_name_bed = utils.build_bed_file_name(repeat_class_file_name)
+    #     repeat_bed = storage_layer.read_bed_file('repeatmasker_staging.hdf', repeat_class_file_name_bed)
+    #
+    #     reldist_df, table_name = self.perform_reldist_analsys_with(repeat_bed, repeat_class_file_name, assembly, method,
+    #                                                                biosample_type)
+    #
+    #     print("Storing in stats...")
+    #     reldist_df.reset_index(inplace=True, drop=True)
+    #
+    #     storage_layer.store_dataframe(reldist_df, 'encode_repeatmasker_stats.hdf', table_name,
+    #                                   queryable_cols=['biosample_name'])
+    #
+    #     print("Completed")
 
     def perform_reldist_analsys_with_fantom_permissive(self, assembly='hg19', method=None, biosample_type=None):
 
@@ -268,65 +210,6 @@ class EncodeAnalyzer(OverlapAnalyzer):
 
         reldist_df, table_name = self.perform_reldist_analsys_with(fantom_bed, fantom_file_name, assembly, method,
                                                                    biosample_type)
-
-        # fantom_bed_sorted = fantom_bed.sort()
-        #
-        # random_fantom_bed = self.build_random_from_bed(fantom_bed, assembly)
-        # shuffled_fantom_bed = self.build_shuffled_from_bed(fantom_bed, assembly)
-        #
-        # annotation_df = storage_layer.read_dataframe('encode_staging.hdf', 'encode_metadata')
-        # annotation_df.drop_duplicates(inplace=True)
-        # annotation_df.reset_index(inplace=True, drop=True)
-        #
-        # table_name = "reldist"
-        #
-        # if assembly:
-        #     annotation_df = annotation_df.query('assembly==@assembly')
-        #     table_name += "_" + assembly
-        # if method:
-        #     annotation_df = annotation_df.query('method==@method')
-        #     table_name += "_" + method
-        # if biosample_type:
-        #     annotation_df = annotation_df.query('biosample_type==@biosample_type')
-        #     table_name += "_" + biosample_type.replace(" ", "_")
-        #
-        # print(len(annotation_df), "experiments found")
-        #
-        # print("Computing relative distance analysis for ENCODE and FANTOM overlaps")
-        # reldist_df = self.init_reldist_df()
-        #
-        # for index, row in annotation_df.iterrows():
-        #     bio_type = row['biosample_type']
-        #     biosample_term_id = row['biosample_term_id']
-        #     biosample_term_name = row['biosample_term_name']
-        #
-        #     print("Processing", biosample_term_name)
-        #     timer = Timer()
-        #     timer.start()
-        #
-        #     biosample_bed_name = utils.build_biosample_bed_file_name(biosample_term_id, assembly, method)
-        #     biosample_bed = storage_layer.read_bed_file('encode_staging.hdf', biosample_bed_name)
-        #     biosample_bed_sorted = biosample_bed.sort()
-        #
-        #     try:
-        #         reldist_df = reldist_df.append(
-        #             self.compute_reldist(biosample_bed_sorted, fantom_bed_sorted, 'ENCODE', 'FANTOM', bio_type,
-        #                                  biosample_term_name)
-        #         )
-        #
-        #         reldist_df = reldist_df.append(
-        #             self.compute_reldist(biosample_bed_sorted, random_fantom_bed, 'ENCODE', 'RANDOM', bio_type,
-        #                                  biosample_term_name)
-        #         )
-        #
-        #         reldist_df = reldist_df.append(
-        #             self.compute_reldist(biosample_bed_sorted, shuffled_fantom_bed, 'ENCODE', 'SHUFFLED', bio_type,
-        #                                  biosample_term_name)
-        #         )
-        #     except:
-        #         print("Error")
-        #
-        #     print(timer.elapsed())
 
         print("Storing in stats...")
         reldist_df.reset_index(inplace=True, drop=True)

@@ -31,17 +31,17 @@ def main(args):
         elif args.target == 'RepeatMasker':
             log.info("Overlapping with RepeatMasker")
 
-            if args.analysis == 'overlap':
-                analyzer.perform_overlap_analysis_with_repeatmasker(assembly=args.assembly, method=args.method,
-                                                                    overlap_intervals=args.overlap_intervals,
-                                                                    samples_num=args.samples_num,
-                                                                    biosample_type=args.biosample_type,
-                                                                    repeat_class=args.repeat_class)
-
-            if args.analysis == 'reldist':
-                analyzer.perform_reldist_analsys_with_repeatmasker(assembly=args.assembly, method=args.method,
-                                                                   biosample_type=args.biosample_type,
-                                                                   repeat_class=args.repeat_class)
+            # if args.analysis == 'overlap':
+            #     analyzer.perform_overlap_analysis_with_repeatmasker(assembly=args.assembly, method=args.method,
+            #                                                         overlap_intervals=args.overlap_intervals,
+            #                                                         samples_num=args.samples_num,
+            #                                                         biosample_type=args.biosample_type,
+            #                                                         repeat_class=args.repeat_class)
+            #
+            # if args.analysis == 'reldist':
+            #     analyzer.perform_reldist_analsys_with_repeatmasker(assembly=args.assembly, method=args.method,
+            #                                                        biosample_type=args.biosample_type,
+            #                                                        repeat_class=args.repeat_class)
 
         else:
             print("The selected target is not available")

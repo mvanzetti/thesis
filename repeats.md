@@ -91,6 +91,12 @@ The new need is to build a set of analyses considering the closeness of sequence
 
 It is important now to focus on the development of a null-model based approached able to measure z values based on closeness-related features and then perform the analyses on Encode-only, FANTOM-only and then "Encode and FANTOM" enhancers list.
 
+## Fisher
+[See here for hypergeom](http://stackoverflow.com/questions/6594840/what-are-equivalents-to-rs-phyper-function-in-python)
+
+[See here for survival function](https://en.wikipedia.org/wiki/Survival_function)
+
+
 <a name="bib"/>
 ## Bibliography
 []()
