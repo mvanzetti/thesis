@@ -16,6 +16,7 @@ For the sake of consistency, all the performed analysis have been made consideri
 ## RepeatMasker results on hg19
 []()
 
+
 See [here](http://www.repeatmasker.org/webrepeatmaskerhelp.html#reading)
 
 The annotation file contains the cross_match output lines. It lists all best matches (above a set minimum score) between the query sequence and any of the sequences in the repeat database or with low complexity DNA. The term "best matches" reflects that a match is not shown if its domain is over 80% contained within the domain of a higher scoring match, where the "domain" of a match is the region in the query sequence that is defined by the alignment start and stop. These domains have been masked in the returned masked sequence file. In the output, matches are ordered by query name, and for each query by position of the start of the alignment. 

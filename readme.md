@@ -352,17 +352,18 @@ optional arguments:
 
 ```
 usage: process.py [-h] [--assembly ASSEMBLY] [--method METHOD] [--force FORCE]
-                  {ENCODE,ROADMAP,FANTOM,dbSUPER,All}
+                  {ENCODE,ROADMAP,FANTOM,dbSUPER,RepeatMasker}
 
 positional arguments:
-  {ENCODE,ROADMAP,FANTOM,dbSUPER,All}
+  {ENCODE,ROADMAP,FANTOM,dbSUPER,RepeatMasker}
                         Select one of the available sources
 
 optional arguments:
   -h, --help            show this help message and exit
   --assembly ASSEMBLY   The assembly to use to filter and process files. For
                         the human genome assembly, type hg19.
-  --method METHOD       Filter the source enhancer list by the provided method
+  --method METHOD       When available, filter the source list by the provided
+                        method
   --force FORCE         If specified, force process even if resources are
                         already present in the local dirs
 ```
@@ -391,6 +392,40 @@ optional arguments:
                         Use only for test purposes
 
 
+```
+
+```
+usage: analyze.py [-h] [--analysis {overlap,reldist}] [--assembly ASSEMBLY]
+                  [--method METHOD] [--type BIOSAMPLE_TYPE]
+                  [--repeat_class REPEAT_CLASS]
+                  [--intervals OVERLAP_INTERVALS] [--samples SAMPLES_NUM]
+                  {ENCODE,FANTOM,ENCODE_FANTOM} {FANTOM,RepeatMasker}
+
+positional arguments:
+  {ENCODE,FANTOM,ENCODE_FANTOM}
+                        Select one of the available sources
+  {FANTOM,RepeatMasker}
+                        Select the target to consider for the overlap analysis
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --analysis {overlap,reldist}
+                        Select the kind of analysis you want to perform
+  --assembly ASSEMBLY   The assembly to use to build the overlaps files. For
+                        the human genome assembly, type hg19.
+  --method METHOD       Filter the source enhancer list by the provided method
+  --type BIOSAMPLE_TYPE
+                        If specified, consider a specific biosample type
+  --repeat_class REPEAT_CLASS
+                        If target is RepeatMasker, please specify a repeat
+                        class family (e.g.: "SINE/Alu")
+  --intervals OVERLAP_INTERVALS
+                        The number of intervals to split the min overlap
+                        requested for the overlapping tests
+  --samples SAMPLES_NUM
+                        The number of samples to consider while building
+                        random null models
+	
 ```
 
 ###ENCODE in dbSUPER

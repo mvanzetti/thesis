@@ -42,14 +42,6 @@ class EncodeOverlapper(Overlapper):
         encode_bed = storage_layer.read_bed_file('encode_staging.hdf', encode_file_name_bed)
         fantom_bed = storage_layer.read_bed_file('fantom_staging.hdf', fantom_file_name_bed)
 
-        # encode_file_path = self.staging_path + "/ENCODE/filtered/" + encode_file_name + ".csv"
-        # fantom_file_path = self.staging_path + "/FANTOM/permissive/PERMISSIVE.csv"
-        # encode_bed_file_path = self.staging_path + "/ENCODE/filtered/" + encode_file_name + ".bed"
-        # fantom_bed_filepath = self.staging_path + "/FANTOM/permissive/PERMISSIVE.bed"
-
-        # encode_bed = BedTool(encode_bed_file_path)
-        # fantom_bed = BedTool(fantom_bed_filepath)
-
         print("ENCODE bed file from staging:", encode_file_name_bed)
         print("FANTOM bed file from staging:", fantom_file_name_bed)
         print("Starting overlap...")
@@ -68,7 +60,6 @@ class EncodeOverlapper(Overlapper):
             output_filename_temp = encode_file_name + "_FANTOM_overlapped_temp.csv"
             print("Exporting temporary overlapped file (no ENCODE details merge) to temp:", output_filename_temp)
             storage_layer.store_dataframe_fixed(overlap_df, 'temp_overlaps.hdf', output_filename_temp)
-            # overlap_df.to_csv(output_filename_temp, index=None, sep='\t')
 
         print("Adding details from FANTOM...")
 
@@ -85,11 +76,9 @@ class EncodeOverlapper(Overlapper):
             print("Exporting temporary overlapped detailed file (no ENCODE details merge) to temp:",
                   output_filename_temp)
             storage_layer.store_dataframe_fixed(overlap_df, 'temp_overlaps.hdf', output_filename_temp)
-            # overlap_df.to_csv(output_filename_temp, index=None, sep='\t')
 
         print("ENCODE details file:", encode_file_name)
         encode_details_df = storage_layer.read_dataframe('encode_staging.hdf', encode_file_name)
-        # encode_details_df = pd.read_csv(encode_file_path, sep='\t')
 
         print("Merging details from ENCODE...")
         overlap_full_detail_encode_df = overlap_df.merge(
@@ -116,7 +105,6 @@ class EncodeOverlapper(Overlapper):
 
         storage_layer.store_dataframe(overlap_full_detail_encode_df, 'encode_overlaps.hdf', output_filename,
                                       ['biosample_term_name', 'biosample_type'])
-        # overlap_full_detail_encode_df.to_csv(output_filename, index=None, sep='\t')
 
         output_bed_filename = output_filename + '_bed'
         print(
@@ -125,7 +113,8 @@ class EncodeOverlapper(Overlapper):
             output_bed_filename)
 
         overlap_full_detail_encode_df['name'] = overlap_full_detail_encode_df['overlap_name']
-        full_bed_df_bed = overlap_full_detail_encode_df.query('FA_ovlp_pct > 0')[['chrom', 'start', 'end', 'name', 'score', 'strand']]
+        full_bed_df_bed = overlap_full_detail_encode_df.query('FA_ovlp_pct > 0')[
+            ['chrom', 'start', 'end', 'name', 'score', 'strand']]
         full_bed_df_bed.drop_duplicates(inplace=True)
 
         print("Storing", len(full_bed_df_bed), "unique overlaps...")

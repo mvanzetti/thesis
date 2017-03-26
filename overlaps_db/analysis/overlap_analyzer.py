@@ -229,12 +229,12 @@ class OverlapAnalyzer:
             min_ovlp = i * 1. / overlap_intervals
 
             # fisher test
-            fisher = bed.fisher(bed_overlap_with, f=min_ovlp, g=assembly_path)
+            fisher = bed.fisher(bed_overlap_with, F=min_ovlp, g=assembly_path)
             overlaps_count = fisher.table['in -a']['in -b']
             right_tail_fisher_pvalue = fisher.right_tail
 
             # jaccard index
-            jaccard = bed.jaccard(bed_overlap_with, f=min_ovlp)
+            jaccard = bed.jaccard(bed_overlap_with, F=min_ovlp)
             jaccard_index = jaccard['jaccard']
 
             # z test
