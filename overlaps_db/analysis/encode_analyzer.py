@@ -44,7 +44,7 @@ class EncodeAnalyzer(OverlapAnalyzer):
 
     def perform_overlap_analysis_with(self, sample_bed_with, sample_bed_with_name, assembly, method,
                                       overlap_intervals,
-                                      samples_num, biosample_type, avoid_z_test=False):
+                                      samples_num, biosample_type, avoid_z_test=False, min_overlap_strategy='source'):
 
         sample_bed_sorted = sample_bed_with.sort()
         random_bed = self.build_random_from_bed(sample_bed_with, assembly)
@@ -75,15 +75,16 @@ class EncodeAnalyzer(OverlapAnalyzer):
                 self.compute_fisher_jaccard_z_tests(biosample_bed_sorted, sample_bed_sorted, 'ENCODE',
                                                     sample_bed_with_name,
                                                     bio_type, biosample_term_name,
-                                                    assembly, overlap_intervals, samples_num, avoid_z_test))
+                                                    assembly, overlap_intervals, samples_num, avoid_z_test,
+                                                    min_overlap_strategy))
 
             tests_random_df = self.compute_fisher_jaccard_tests(biosample_bed_sorted, random_bed, 'ENCODE',
                                                                 'RANDOM', bio_type, biosample_term_name, assembly,
-                                                                overlap_intervals)
+                                                                overlap_intervals, min_overlap_strategy)
 
             tests_shuffled_df = self.compute_fisher_jaccard_tests(biosample_bed_sorted, shuffled_bed, 'ENCODE',
                                                                   'SHUFFLED', bio_type, biosample_term_name, assembly,
-                                                                  overlap_intervals)
+                                                                  overlap_intervals, min_overlap_strategy)
 
             tests_df = tests_df.append(tests_random_df)
             tests_df = tests_df.append(tests_shuffled_df)
@@ -163,7 +164,8 @@ class EncodeAnalyzer(OverlapAnalyzer):
     #     print("Completed")
 
     def perform_overlap_analysis_with_fantom_permissive(self, assembly='hg19', method=None, overlap_intervals=10,
-                                                        samples_num=20, biosample_type=None):
+                                                        samples_num=20, biosample_type=None,
+                                                        min_overlap_strategy='source'):
         storage_layer = HdfStoreManager(self.storage_path)
 
         fantom_file_name = utils.build_permissive_file_name()
@@ -171,7 +173,8 @@ class EncodeAnalyzer(OverlapAnalyzer):
         fantom_bed = storage_layer.read_bed_file('fantom_staging.hdf', fantom_file_name_bed)
 
         tests_df, table_name = self.perform_overlap_analysis_with(fantom_bed, fantom_file_name, assembly, method,
-                                                                  overlap_intervals, samples_num, biosample_type)
+                                                                  overlap_intervals, samples_num, biosample_type,
+                                                                  False, min_overlap_strategy)
         print("Storing in stats...")
         tests_df.reset_index(inplace=True, drop=True)
 

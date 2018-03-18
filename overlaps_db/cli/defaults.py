@@ -33,11 +33,11 @@ encyclopedia = [{
     }
 }]
 
-assembly = [{
+assembly = {
     'full': {
         'hg19': 'genome/hg19.genome'
     },
     'reduced': {
         'hg19': 'genome/hg19_reduced.genome'
     }
-}]
+}

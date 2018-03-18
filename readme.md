@@ -399,6 +399,7 @@ usage: analyze.py [-h] [--analysis {overlap,reldist}] [--assembly ASSEMBLY]
                   [--method METHOD] [--type BIOSAMPLE_TYPE]
                   [--repeat_class REPEAT_CLASS]
                   [--intervals OVERLAP_INTERVALS] [--samples SAMPLES_NUM]
+                  [--overlap_strategy {source,target}]
                   {ENCODE,FANTOM,ENCODE_FANTOM} {FANTOM,RepeatMasker}
 
 positional arguments:
@@ -425,6 +426,9 @@ optional arguments:
   --samples SAMPLES_NUM
                         The number of samples to consider while building
                         random null models
+  --overlap_strategy {source,target}
+                        Specify if the minimum overlap fraction has to be
+                        computed on source or target
 	
 ```
 

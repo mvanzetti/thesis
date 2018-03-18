@@ -64,7 +64,7 @@ class OverlapAnalyzer:
     #     return random_overlap
 
     def build_random_overlap(self, bed, intervals_size, intervals_num, min_overlap, assembly, df_columns, idx,
-                             full_genome=False):
+                             full_genome=False, min_overlap_strategy='source'):
         assembly_path = self.get_reduced_assembly(assembly)
         if full_genome:
             assembly_path = self.get_assembly(assembly)
@@ -72,16 +72,29 @@ class OverlapAnalyzer:
         empty_bed = BedTool()
         random_bed = empty_bed.random(l=intervals_size, n=intervals_num,
                                       g=assembly_path)
-        row_array = [idx, bed.intersect(random_bed, f=min_overlap).count()]
+        if min_overlap_strategy == 'source':
+            count = bed.intersect(random_bed, f=min_overlap).count()
+        else:
+            count = bed.intersect(random_bed, F=min_overlap).count()
+
+        row_array = [idx, count]
+
         return pd.DataFrame([row_array], columns=df_columns)
 
-    def build_shuffled_overlap(self, bed, bed_overlap_with, min_overlap, assembly, df_columns, idx, full_genome=False):
+    def build_shuffled_overlap(self, bed, bed_overlap_with, min_overlap, assembly, df_columns, idx, full_genome=False,
+                               min_overlap_strategy='source'):
         assembly_path = self.get_reduced_assembly(assembly)
         if full_genome:
             assembly_path = self.get_assembly(assembly)
 
         random_bed = bed_overlap_with.shuffle(g=assembly_path, chrom=False)
-        row_array = [idx, bed.intersect(random_bed, f=min_overlap).count()]
+
+        if min_overlap_strategy == 'source':
+            count = bed.intersect(random_bed, f=min_overlap).count()
+        else:
+            count = bed.intersect(random_bed, F=min_overlap).count()
+
+        row_array = [idx, count]
         return pd.DataFrame([row_array], columns=df_columns)
 
     def build_random_from_bed(self, bed, assembly, full_genome=False):
@@ -104,7 +117,7 @@ class OverlapAnalyzer:
         return shuffled_bed_sorted
 
     def create_random_overlap_distribution(self, bed, bed_overlap_with, assembly, min_overlap, samples_num,
-                                           strategy='random'):
+                                           strategy='random', min_overlap_strategy='source'):
         intervals_size = self.mean_size(bed_overlap_with)
         intervals_num = bed_overlap_with.count()
         columns = ['sample_num', 'size']
@@ -113,16 +126,18 @@ class OverlapAnalyzer:
         if strategy == 'shuffle':
             for i in range(0, samples_num):
                 tests_df = tests_df.append(
-                    self.build_shuffled_overlap(bed, bed_overlap_with, min_overlap, assembly, columns, i))
+                    self.build_shuffled_overlap(bed, bed_overlap_with, min_overlap, assembly, columns, i,
+                                                min_overlap_strategy))
         else:
             for i in range(0, samples_num):
                 tests_df = tests_df.append(
-                    self.build_random_overlap(bed, intervals_size, intervals_num, min_overlap, assembly, columns, i))
+                    self.build_random_overlap(bed, intervals_size, intervals_num, min_overlap, assembly, columns, i,
+                                              min_overlap_strategy))
 
         return tests_df
 
     def create_random_overlap_distribution_parallelized(self, bed, bed_overlap_with, assembly, min_overlap, samples_num,
-                                                        strategy='random'):
+                                                        strategy='random', min_overlap_strategy='source'):
         num_cores = multiprocessing.cpu_count()
 
         intervals_size = self.mean_size(bed_overlap_with)
@@ -131,11 +146,13 @@ class OverlapAnalyzer:
 
         if strategy == 'shuffle':
             df_list = Parallel(n_jobs=num_cores)(delayed(self.build_shuffled_overlap)
-                                                 (bed, bed_overlap_with, min_overlap, assembly, columns, i)
+                                                 (bed, bed_overlap_with, min_overlap, assembly, columns, i,
+                                                  min_overlap_strategy)
                                                  for i in range(0, samples_num))
         else:
             df_list = Parallel(n_jobs=num_cores)(delayed(self.build_random_overlap)
-                                                 (bed, intervals_size, intervals_num, min_overlap, assembly, columns, i)
+                                                 (bed, intervals_size, intervals_num, min_overlap, assembly, columns, i,
+                                                  min_overlap_strategy)
                                                  for i in range(0, samples_num))
         return pd.concat(df_list)
 
@@ -169,7 +186,8 @@ class OverlapAnalyzer:
         return tests_df
 
     def compute_fisher_jaccard_tests(self, bed, bed_overlap_with, bed_name, bed_overlap_with_name, biosample_type,
-                                     biosample_name, assembly, overlap_intervals=10, full_genome=False):
+                                     biosample_name, assembly, overlap_intervals=10, full_genome=False,
+                                     min_overlap_strategy='source'):
 
         assembly_path = self.get_reduced_assembly(assembly)
         if full_genome:
@@ -185,7 +203,11 @@ class OverlapAnalyzer:
             min_ovlp = i * 1. / overlap_intervals
 
             # fisher test
-            fisher = bed.fisher(bed_overlap_with, f=min_ovlp, g=assembly_path)
+            if min_overlap_strategy == 'source':
+                fisher = bed.fisher(bed_overlap_with, f=min_ovlp, g=assembly_path)
+            else:
+                fisher = bed.fisher(bed_overlap_with, F=min_ovlp, g=assembly_path)
+
             overlaps_count = fisher.table['in -a']['in -b']
             left_tail_fisher_pvalue = fisher.left_tail
             right_tail_fisher_pvalue = fisher.right_tail
@@ -193,7 +215,11 @@ class OverlapAnalyzer:
             oddsratio_fisher = fisher.ratio
 
             # jaccard index
-            jaccard = bed.jaccard(bed_overlap_with, f=min_ovlp)
+            if min_overlap_strategy == 'source':
+                jaccard = bed.jaccard(bed_overlap_with, f=min_ovlp)
+            else:
+                jaccard = bed.jaccard(bed_overlap_with, F=min_ovlp)
+
             jaccard_index = jaccard['jaccard']
 
             row_array = [bed_name, biosample_type, biosample_name, bed_overlap_with_name, a_size, b_size,
@@ -213,7 +239,7 @@ class OverlapAnalyzer:
 
     def compute_fisher_jaccard_z_tests(self, bed, bed_overlap_with, bed_name, bed_overlap_with_name, biosample_type,
                                        biosample_name, assembly, overlap_intervals=10, samples_num=20, avoid_z=False,
-                                       full_genome=False):
+                                       full_genome=False, min_overlap_strategy='source'):
 
         assembly_path = self.get_reduced_assembly(assembly)
         if full_genome:
@@ -229,12 +255,20 @@ class OverlapAnalyzer:
             min_ovlp = i * 1. / overlap_intervals
 
             # fisher test
-            fisher = bed.fisher(bed_overlap_with, F=min_ovlp, g=assembly_path)
+            # fisher test
+            if min_overlap_strategy == 'source':
+                fisher = bed.fisher(bed_overlap_with, f=min_ovlp, g=assembly_path)
+            else:
+                fisher = bed.fisher(bed_overlap_with, F=min_ovlp, g=assembly_path)
+
             overlaps_count = fisher.table['in -a']['in -b']
             right_tail_fisher_pvalue = fisher.right_tail
 
             # jaccard index
-            jaccard = bed.jaccard(bed_overlap_with, F=min_ovlp)
+            if min_overlap_strategy == 'source':
+                jaccard = bed.jaccard(bed_overlap_with, f=min_ovlp)
+            else:
+                jaccard = bed.jaccard(bed_overlap_with, F=min_ovlp)
             jaccard_index = jaccard['jaccard']
 
             # z test
@@ -244,9 +278,10 @@ class OverlapAnalyzer:
             else:
                 runs_shuffled_df = self.create_random_overlap_distribution_parallelized(bed, bed_overlap_with, assembly,
                                                                                         min_ovlp, samples_num,
-                                                                                        'shuffle')
+                                                                                        'shuffle', min_overlap_strategy)
                 runs_random_df = self.create_random_overlap_distribution_parallelized(bed, bed_overlap_with, assembly,
-                                                                                      min_ovlp, samples_num)
+                                                                                      min_ovlp, samples_num, 'random',
+                                                                                      min_overlap_strategy)
 
                 random_mean_count = float(runs_random_df[['size']].mean())
                 random_std = float(runs_random_df[['size']].std())

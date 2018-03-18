@@ -22,7 +22,8 @@ def main(args):
                 analyzer.perform_overlap_analysis_with_fantom_permissive(assembly=args.assembly, method=args.method,
                                                                          overlap_intervals=args.overlap_intervals,
                                                                          samples_num=args.samples_num,
-                                                                         biosample_type=args.biosample_type)
+                                                                         biosample_type=args.biosample_type,
+                                                                         min_overlap_strategy=args.min_overlap_strategy)
 
             if args.analysis == 'reldist':
                 analyzer.perform_reldist_analsys_with_fantom_permissive(assembly=args.assembly, method=args.method,
@@ -82,6 +83,10 @@ if __name__ == '__main__':
     parser.add_argument('--samples', action="store", dest="samples_num",
                         help='The number of samples to consider while building random null models', type=int,
                         default=20)
+    parser.add_argument('--overlap_strategy', action="store", dest="min_overlap_strategy",
+                        help='Specify if the minimum overlap fraction has to be computed on source or target',
+                        choices=['source', 'target'],
+                        default='source')
 
     received_args = parser.parse_args()
     log.info("Performing %s analysis for %s and %s", received_args.analysis, received_args.source, received_args.target)
